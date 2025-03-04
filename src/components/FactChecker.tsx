@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type ResultStatus = "loading" | "idle" | "complete";
 type TruthStatus = "true" | "questionable" | "fake" | null;
@@ -23,6 +24,7 @@ export default function FactChecker() {
   const [status, setStatus] = useState<ResultStatus>("idle");
   const [result, setResult] = useState<ResultData | null>(null);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const handleCheck = () => {
     if (!query.trim()) {
@@ -100,11 +102,11 @@ export default function FactChecker() {
   const getStatusText = (status: TruthStatus) => {
     switch (status) {
       case "true":
-        return "Verified";
+        return t("verified");
       case "questionable":
-        return "Questionable";
+        return t("questionable");
       case "fake":
-        return "False";
+        return t("false");
       default:
         return "";
     }
@@ -138,14 +140,14 @@ Sources: ${result.sources.join(", ")}
             Fact Checker
           </Badge>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Verify any statement instantly
+            {t("verifyStatement")}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Enter any statement, news headline, or claim to get an AI-powered analysis of its credibility in seconds.
           </p>
         </div>
 
-        <Card className="shadow-soft mx-auto overflow-hidden transition-all duration-300 hover:shadow-xl border-t-4 border-t-primary">
+        <Card className="shadow-soft mx-auto overflow-hidden transition-all duration-300 hover:shadow-xl border-t-4 border-t-primary dark:bg-gray-800 dark:border-gray-700">
           <CardHeader className="pb-2">
             <CardTitle className="text-xl font-medium">TruthGuard Analyzer</CardTitle>
             <CardDescription>
@@ -156,8 +158,8 @@ Sources: ${result.sources.join(", ")}
             <div className="flex flex-col gap-4">
               <div className="relative">
                 <Input
-                  placeholder="Enter a statement or news headline to fact-check..."
-                  className="pl-10 py-6 text-base"
+                  placeholder={t("enterStatement")}
+                  className="pl-10 py-6 text-base dark:bg-gray-700 dark:border-gray-600"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleCheck()}
@@ -173,9 +175,9 @@ Sources: ${result.sources.join(", ")}
                 {status === "loading" ? (
                   <span className="flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Analyzing...
+                    {t("analyzing")}
                   </span>
-                ) : "Check Fact"}
+                ) : t("checkFact")}
               </Button>
             </div>
 
@@ -194,7 +196,7 @@ Sources: ${result.sources.join(", ")}
                     <div className="w-3 h-3 rounded-full bg-primary loading-dot"></div>
                   </div>
                   <p className="text-muted-foreground text-sm animate-pulse">
-                    Analyzing sources and verifying facts...
+                    {t("analyzing")}...
                   </p>
                 </motion.div>
               )}
@@ -205,9 +207,9 @@ Sources: ${result.sources.join(", ")}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.5 }}
-                  className="mt-6 border rounded-lg overflow-hidden"
+                  className="mt-6 border rounded-lg overflow-hidden dark:border-gray-700"
                 >
-                  <div className="p-4 flex items-center justify-between border-b">
+                  <div className="p-4 flex items-center justify-between border-b dark:border-gray-700">
                     <div className="flex items-center gap-3">
                       {getStatusIcon(result.status)}
                       <div>
@@ -222,20 +224,20 @@ Sources: ${result.sources.join(", ")}
                     </Badge>
                   </div>
                   
-                  <div className="p-4 border-b">
-                    <h4 className="font-medium mb-2">Statement</h4>
-                    <p className="text-sm bg-muted p-3 rounded">{query}</p>
+                  <div className="p-4 border-b dark:border-gray-700">
+                    <h4 className="font-medium mb-2">{t("statement")}</h4>
+                    <p className="text-sm bg-muted p-3 rounded dark:bg-gray-700">{query}</p>
                   </div>
                   
-                  <div className="p-4 border-b">
-                    <h4 className="font-medium mb-2">Reasoning</h4>
+                  <div className="p-4 border-b dark:border-gray-700">
+                    <h4 className="font-medium mb-2">{t("reasoning")}</h4>
                     <p className="text-sm">{result.reasoning}</p>
                   </div>
                   
                   <div className="p-4 grid grid-cols-2 gap-4">
                     <div>
-                      <h4 className="font-medium text-sm mb-2">Confidence Score</h4>
-                      <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <h4 className="font-medium text-sm mb-2">{t("confidenceScore")}</h4>
+                      <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                         <motion.div 
                           initial={{ width: 0 }}
                           animate={{ width: `${result.confidence * 100}%` }}
@@ -253,10 +255,10 @@ Sources: ${result.sources.join(", ")}
                     </div>
                     
                     <div>
-                      <h4 className="font-medium text-sm mb-2">Sources</h4>
+                      <h4 className="font-medium text-sm mb-2">{t("sources")}</h4>
                       <div className="flex flex-wrap gap-2">
                         {result.sources.map((source, i) => (
-                          <Badge key={i} variant="secondary" className="flex items-center gap-1 text-xs">
+                          <Badge key={i} variant="secondary" className="flex items-center gap-1 text-xs dark:bg-gray-700">
                             <ExternalLink className="h-3 w-3" />
                             {source}
                           </Badge>
@@ -270,15 +272,15 @@ Sources: ${result.sources.join(", ")}
           </CardContent>
           
           {status === "complete" && result && (
-            <CardFooter className="flex justify-end border-t pt-4">
+            <CardFooter className="flex justify-end border-t pt-4 dark:border-gray-700">
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 dark:border-gray-600"
                 onClick={copyToClipboard}
               >
                 <Copy className="h-4 w-4" />
-                <span>Copy Results</span>
+                <span>{t("copyResults")}</span>
               </Button>
             </CardFooter>
           )}

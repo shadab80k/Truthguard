@@ -4,10 +4,14 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Menu, X, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import ThemeToggle from './ThemeToggle';
+import LanguageSelector from './LanguageSelector';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function NavBar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { t } = useLanguage();
   
   useEffect(() => {
     const handleScroll = () => {
@@ -19,10 +23,10 @@ export default function NavBar() {
   }, []);
   
   const navLinks = [
-    { name: 'Home', href: '#' },
-    { name: 'Features', href: '#features' },
-    { name: 'How It Works', href: '#how-it-works' },
-    { name: 'Try It', href: '#fact-checker' },
+    { name: t('home'), href: '#' },
+    { name: t('features'), href: '#features' },
+    { name: t('howItWorks'), href: '#how-it-works' },
+    { name: t('tryIt'), href: '#fact-checker' },
   ];
   
   return (
@@ -61,18 +65,22 @@ export default function NavBar() {
           ))}
         </nav>
         
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <LanguageSelector />
+          <ThemeToggle />
+          
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.4 }}
+            className="ml-2"
           >
             <Button
               variant="default"
               size="sm"
               className="hidden md:flex"
             >
-              Get Started
+              {t('getStarted')}
             </Button>
           </motion.div>
           
@@ -110,7 +118,7 @@ export default function NavBar() {
                 </a>
               ))}
               <Button variant="default" size="sm" className="mt-2 w-full">
-                Get Started
+                {t('getStarted')}
               </Button>
             </div>
           </motion.div>
