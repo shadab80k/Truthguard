@@ -42,21 +42,75 @@ export default function FactChecker() {
           status: "true",
           confidence: Math.round((0.7 + Math.random() * 0.3) * 100) / 100,
           sources: ["reuters.com", "apnews.com", "bbc.com"],
-          reasoning: "This statement aligns with verified information from credible sources. Multiple fact-checking organizations have confirmed its accuracy."
+          reasoning: "This statement aligns with verified information from credible sources. Multiple fact-checking organizations have confirmed its accuracy.",
+          sourceDetails: [
+            {
+              name: "reuters.com",
+              url: "https://reuters.com/fact-check",
+              credibility: "high",
+              summary: "Reuters verified this claim through multiple independent sources and official records."
+            },
+            {
+              name: "apnews.com",
+              url: "https://apnews.com/fact-check",
+              credibility: "high",
+              summary: "AP News confirmed the accuracy of this statement with primary source documentation."
+            },
+            {
+              name: "bbc.com",
+              url: "https://bbc.com/fact-check",
+              credibility: "high",
+              summary: "BBC's fact-checking team validated this information through interviews with experts and document analysis."
+            }
+          ]
         };
       } else if (randomNum < 0.66) {
         resultData = {
           status: "questionable",
           confidence: Math.round((0.4 + Math.random() * 0.3) * 100) / 100,
           sources: ["factcheck.org", "politifact.com"],
-          reasoning: "This statement contains some accurate information but may be misleading due to omission of important context or exaggeration of certain aspects."
+          reasoning: "This statement contains some accurate information but may be misleading due to omission of important context or exaggeration of certain aspects.",
+          sourceDetails: [
+            {
+              name: "factcheck.org",
+              url: "https://factcheck.org/recent",
+              credibility: "medium",
+              summary: "FactCheck.org found the core claim has some truth but omits critical context that changes its interpretation."
+            },
+            {
+              name: "politifact.com",
+              url: "https://politifact.com/fact-checks",
+              credibility: "medium",
+              summary: "PolitiFact rates this claim as 'Half True' as it contains elements of truth but exaggerates key details."
+            }
+          ]
         };
       } else {
         resultData = {
           status: "fake",
           confidence: Math.round((0.7 + Math.random() * 0.3) * 100) / 100,
           sources: ["snopes.com", "factcheck.org", "politifact.com"],
-          reasoning: "This statement contains false information that has been debunked by multiple fact-checking organizations. The claim contradicts established facts and evidence."
+          reasoning: "This statement contains false information that has been debunked by multiple fact-checking organizations. The claim contradicts established facts and evidence.",
+          sourceDetails: [
+            {
+              name: "snopes.com",
+              url: "https://snopes.com/fact-check",
+              credibility: "high",
+              summary: "Snopes has thoroughly debunked this claim and provides contrary evidence from reliable sources."
+            },
+            {
+              name: "factcheck.org",
+              url: "https://factcheck.org/recent",
+              credibility: "high",
+              summary: "This statement has been investigated by FactCheck.org and found to contain demonstrably false information."
+            },
+            {
+              name: "politifact.com",
+              url: "https://politifact.com/fact-checks",
+              credibility: "high",
+              summary: "PolitiFact rates this claim as 'False' based on multiple contradicting pieces of evidence."
+            }
+          ]
         };
       }
 
