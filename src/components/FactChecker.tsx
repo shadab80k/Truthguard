@@ -10,7 +10,7 @@ import LoadingIndicator from './fact-checker/LoadingIndicator';
 import FactCheckerForm from './fact-checker/FactCheckerForm';
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { XCircle } from 'lucide-react';
+import { XCircle, AlertTriangle } from 'lucide-react';
 
 type ResultStatus = "loading" | "idle" | "complete" | "error";
 
@@ -48,7 +48,14 @@ export default function FactChecker() {
 
       if (error) {
         console.error('Error from Supabase function:', error);
-        setErrorMessage(`Error: ${error.message || "Failed to check facts"}`);
+        
+        // Check if it's a quota exceeded error
+        if (error.message && error.message.includes('quota')) {
+          setErrorMessage("OpenAI API quota exceeded. Please try again later or upgrade your plan.");
+        } else {
+          setErrorMessage(`Error: ${error.message || "Failed to check facts"}`);
+        }
+        
         setStatus("error");
         return;
       }
@@ -107,8 +114,14 @@ export default function FactChecker() {
 
               {status === "error" && errorMessage && (
                 <Alert variant="destructive" className="mt-6">
-                  <XCircle className="h-4 w-4" />
-                  <AlertTitle>Error checking facts</AlertTitle>
+                  {errorMessage.includes('quota') ? (
+                    <AlertTriangle className="h-4 w-4" />
+                  ) : (
+                    <XCircle className="h-4 w-4" />
+                  )}
+                  <AlertTitle>
+                    {errorMessage.includes('quota') ? 'API Limit Reached' : 'Error checking facts'}
+                  </AlertTitle>
                   <AlertDescription>{errorMessage}</AlertDescription>
                 </Alert>
               )}

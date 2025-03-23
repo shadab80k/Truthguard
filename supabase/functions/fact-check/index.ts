@@ -98,8 +98,19 @@ serve(async (req) => {
           errorData = { error: { message: 'Unknown error from OpenAI API' } };
         }
         
+        let errorMessage = errorData.error?.message || 'Unknown error';
+        
+        // Check for quota exceeded error
+        if (errorMessage.includes('quota') || errorMessage.includes('billing')) {
+          console.error('OpenAI API quota exceeded or billing issue');
+          return new Response(
+            JSON.stringify({ error: `OpenAI API quota exceeded: ${errorMessage}` }),
+            { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        
         return new Response(
-          JSON.stringify({ error: `OpenAI API error: ${errorData.error?.message || 'Unknown error'}` }),
+          JSON.stringify({ error: `OpenAI API error: ${errorMessage}` }),
           { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
