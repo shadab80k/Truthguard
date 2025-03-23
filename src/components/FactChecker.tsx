@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
@@ -8,13 +9,16 @@ import AnalysisResult, { ResultData } from './fact-checker/AnalysisResult';
 import LoadingIndicator from './fact-checker/LoadingIndicator';
 import FactCheckerForm from './fact-checker/FactCheckerForm';
 import { supabase } from '@/integrations/supabase/client';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { XCircle } from 'lucide-react';
 
-type ResultStatus = "loading" | "idle" | "complete";
+type ResultStatus = "loading" | "idle" | "complete" | "error";
 
 export default function FactChecker() {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<ResultStatus>("idle");
   const [result, setResult] = useState<ResultData | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { toast } = useToast();
   const { t } = useLanguage();
 
@@ -30,6 +34,7 @@ export default function FactChecker() {
 
     setStatus("loading");
     setResult(null);
+    setErrorMessage(null);
 
     try {
       // Get current user (if logged in)
@@ -42,7 +47,16 @@ export default function FactChecker() {
       });
 
       if (error) {
-        throw new Error(error.message);
+        console.error('Error from Supabase function:', error);
+        setErrorMessage(`Error: ${error.message || "Failed to check facts"}`);
+        setStatus("error");
+        return;
+      }
+
+      if (!data) {
+        setErrorMessage("No data returned from fact-checking service");
+        setStatus("error");
+        return;
       }
 
       // Add a short delay to show the loading animation (can be removed in production)
@@ -52,13 +66,9 @@ export default function FactChecker() {
       }, 1000);
 
     } catch (error) {
-      console.error('Error during fact checking:', error);
-      toast({
-        title: "Error checking facts",
-        description: error.message || "There was an error processing your request",
-        variant: "destructive",
-      });
-      setStatus("idle");
+      console.error('Exception during fact checking:', error);
+      setErrorMessage(error.message || "There was an unexpected error processing your request");
+      setStatus("error");
     }
   };
 
@@ -94,6 +104,14 @@ export default function FactChecker() {
 
             <AnimatePresence>
               {status === "loading" && <LoadingIndicator />}
+
+              {status === "error" && errorMessage && (
+                <Alert variant="destructive" className="mt-6">
+                  <XCircle className="h-4 w-4" />
+                  <AlertTitle>Error checking facts</AlertTitle>
+                  <AlertDescription>{errorMessage}</AlertDescription>
+                </Alert>
+              )}
 
               {status === "complete" && result && (
                 <AnalysisResult result={result} query={query} />
