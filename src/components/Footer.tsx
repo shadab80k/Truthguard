@@ -1,6 +1,7 @@
 
 import { Shield, Twitter, Github, Linkedin, Mail } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 export default function Footer() {
   const footerLinks = [
@@ -10,43 +11,47 @@ export default function Footer() {
         { name: "Features", href: "#features" },
         { name: "How It Works", href: "#how-it-works" },
         { name: "Try It", href: "#fact-checker" },
-        { name: "Pricing", href: "#" },
+        { name: "Pricing", href: "/pricing" },
       ]
     },
     {
       title: "Resources",
       links: [
-        { name: "Documentation", href: "#" },
-        { name: "API", href: "#" },
-        { name: "Blog", href: "#" },
-        { name: "FAQs", href: "#" },
+        { name: "Documentation", href: "/documentation" },
+        { name: "API", href: "/api" },
+        { name: "Blog", href: "/blog" },
+        { name: "FAQs", href: "/faqs" },
       ]
     },
     {
       title: "Company",
       links: [
-        { name: "About", href: "#" },
-        { name: "Careers", href: "#" },
-        { name: "Privacy", href: "#" },
-        { name: "Terms", href: "#" },
+        { name: "About", href: "/about" },
+        { name: "Careers", href: "/careers" },
+        { name: "Privacy", href: "/privacy" },
+        { name: "Terms", href: "/terms" },
       ]
     }
   ];
 
   const socialLinks = [
-    { icon: <Twitter className="h-5 w-5" />, href: "#", label: "Twitter" },
-    { icon: <Github className="h-5 w-5" />, href: "#", label: "GitHub" },
-    { icon: <Linkedin className="h-5 w-5" />, href: "#", label: "LinkedIn" },
-    { icon: <Mail className="h-5 w-5" />, href: "#", label: "Email" },
+    { icon: <Twitter className="h-5 w-5" />, href: "https://twitter.com", label: "Twitter" },
+    { icon: <Github className="h-5 w-5" />, href: "https://github.com", label: "GitHub" },
+    { icon: <Linkedin className="h-5 w-5" />, href: "https://linkedin.com", label: "LinkedIn" },
+    { icon: <Mail className="h-5 w-5" />, href: "mailto:contact@truthguard.com", label: "Email" },
   ];
+
+  // Helper function to determine if a link is internal or external
+  const isInternalLink = (href: string) => {
+    return href.startsWith('#') || href.startsWith('/');
+  };
 
   return (
     <footer className="bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800">
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-2">
-            <motion.a 
-              href="#"
+            <motion.div 
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
@@ -55,7 +60,7 @@ export default function Footer() {
             >
               <Shield className="h-8 w-8 text-primary" />
               <span className="font-bold text-xl">TruthGuard</span>
-            </motion.a>
+            </motion.div>
             
             <motion.p
               initial={{ opacity: 0, y: 10 }}
@@ -78,6 +83,8 @@ export default function Footer() {
                 <a
                   key={i}
                   href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label={link.label}
                   className="h-10 w-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-primary hover:text-white transition-colors"
                 >
@@ -99,12 +106,32 @@ export default function Footer() {
               <ul className="space-y-3">
                 {group.links.map((link, j) => (
                   <li key={j}>
-                    <a 
-                      href={link.href} 
-                      className="text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      {link.name}
-                    </a>
+                    {isInternalLink(link.href) ? (
+                      link.href.startsWith('#') ? (
+                        <a 
+                          href={link.href} 
+                          className="text-muted-foreground hover:text-primary transition-colors"
+                        >
+                          {link.name}
+                        </a>
+                      ) : (
+                        <Link 
+                          to={link.href} 
+                          className="text-muted-foreground hover:text-primary transition-colors"
+                        >
+                          {link.name}
+                        </Link>
+                      )
+                    ) : (
+                      <a 
+                        href={link.href} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        {link.name}
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -123,15 +150,15 @@ export default function Footer() {
             © {new Date().getFullYear()} TruthGuard. All rights reserved.
           </p>
           <div className="flex gap-6">
-            <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            <Link to="/privacy-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
               Privacy Policy
-            </a>
-            <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            </Link>
+            <Link to="/terms" className="text-sm text-muted-foreground hover:text-primary transition-colors">
               Terms of Service
-            </a>
-            <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            </Link>
+            <Link to="/cookie-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
               Cookie Policy
-            </a>
+            </Link>
           </div>
         </motion.div>
       </div>
