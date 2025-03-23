@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +7,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import AnalysisResult, { ResultData } from './fact-checker/AnalysisResult';
 import LoadingIndicator from './fact-checker/LoadingIndicator';
 import FactCheckerForm from './fact-checker/FactCheckerForm';
+import { supabase } from '@/integrations/supabase/client';
 
 type ResultStatus = "loading" | "idle" | "complete";
 
@@ -18,7 +18,7 @@ export default function FactChecker() {
   const { toast } = useToast();
   const { t } = useLanguage();
 
-  const handleCheck = () => {
+  const handleCheck = async () => {
     if (!query.trim()) {
       toast({
         title: "Please enter a statement",
@@ -31,92 +31,35 @@ export default function FactChecker() {
     setStatus("loading");
     setResult(null);
 
-    // Simulate API call with a delayed response
-    setTimeout(() => {
-      // Determine randomly whether the statement is true, questionable, or fake for demo purposes
-      const randomNum = Math.random();
-      let resultData: ResultData;
+    try {
+      // Get current user (if logged in)
+      const { data: { user } } = await supabase.auth.getUser();
+      const userId = user?.id;
 
-      if (randomNum < 0.33) {
-        resultData = {
-          status: "true",
-          confidence: Math.round((0.7 + Math.random() * 0.3) * 100) / 100,
-          sources: ["reuters.com", "apnews.com", "bbc.com"],
-          reasoning: "This statement aligns with verified information from credible sources. Multiple fact-checking organizations have confirmed its accuracy.",
-          sourceDetails: [
-            {
-              name: "reuters.com",
-              url: "https://reuters.com/fact-check",
-              credibility: "high",
-              summary: "Reuters verified this claim through multiple independent sources and official records."
-            },
-            {
-              name: "apnews.com",
-              url: "https://apnews.com/fact-check",
-              credibility: "high",
-              summary: "AP News confirmed the accuracy of this statement with primary source documentation."
-            },
-            {
-              name: "bbc.com",
-              url: "https://bbc.com/fact-check",
-              credibility: "high",
-              summary: "BBC's fact-checking team validated this information through interviews with experts and document analysis."
-            }
-          ]
-        };
-      } else if (randomNum < 0.66) {
-        resultData = {
-          status: "questionable",
-          confidence: Math.round((0.4 + Math.random() * 0.3) * 100) / 100,
-          sources: ["factcheck.org", "politifact.com"],
-          reasoning: "This statement contains some accurate information but may be misleading due to omission of important context or exaggeration of certain aspects.",
-          sourceDetails: [
-            {
-              name: "factcheck.org",
-              url: "https://factcheck.org/recent",
-              credibility: "medium",
-              summary: "FactCheck.org found the core claim has some truth but omits critical context that changes its interpretation."
-            },
-            {
-              name: "politifact.com",
-              url: "https://politifact.com/fact-checks",
-              credibility: "medium",
-              summary: "PolitiFact rates this claim as 'Half True' as it contains elements of truth but exaggerates key details."
-            }
-          ]
-        };
-      } else {
-        resultData = {
-          status: "fake",
-          confidence: Math.round((0.7 + Math.random() * 0.3) * 100) / 100,
-          sources: ["snopes.com", "factcheck.org", "politifact.com"],
-          reasoning: "This statement contains false information that has been debunked by multiple fact-checking organizations. The claim contradicts established facts and evidence.",
-          sourceDetails: [
-            {
-              name: "snopes.com",
-              url: "https://snopes.com/fact-check",
-              credibility: "high",
-              summary: "Snopes has thoroughly debunked this claim and provides contrary evidence from reliable sources."
-            },
-            {
-              name: "factcheck.org",
-              url: "https://factcheck.org/recent",
-              credibility: "high",
-              summary: "This statement has been investigated by FactCheck.org and found to contain demonstrably false information."
-            },
-            {
-              name: "politifact.com",
-              url: "https://politifact.com/fact-checks",
-              credibility: "high",
-              summary: "PolitiFact rates this claim as 'False' based on multiple contradicting pieces of evidence."
-            }
-          ]
-        };
+      // Call the fact-check function
+      const { data, error } = await supabase.functions.invoke('fact-check', {
+        body: { statement: query, userId }
+      });
+
+      if (error) {
+        throw new Error(error.message);
       }
 
-      setResult(resultData);
-      setStatus("complete");
-    }, 2000);
+      // Add a short delay to show the loading animation (can be removed in production)
+      setTimeout(() => {
+        setResult(data);
+        setStatus("complete");
+      }, 1000);
+
+    } catch (error) {
+      console.error('Error during fact checking:', error);
+      toast({
+        title: "Error checking facts",
+        description: error.message || "There was an error processing your request",
+        variant: "destructive",
+      });
+      setStatus("idle");
+    }
   };
 
   return (

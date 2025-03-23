@@ -9,7 +9,74 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      fact_checks: {
+        Row: {
+          confidence: number
+          created_at: string | null
+          id: string
+          is_public: boolean | null
+          reasoning: string
+          statement: string
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          confidence: number
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          reasoning: string
+          statement: string
+          status: string
+          user_id?: string | null
+        }
+        Update: {
+          confidence?: number
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          reasoning?: string
+          statement?: string
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      sources: {
+        Row: {
+          credibility: string
+          fact_check_id: string | null
+          id: string
+          name: string
+          summary: string
+          url: string
+        }
+        Insert: {
+          credibility: string
+          fact_check_id?: string | null
+          id?: string
+          name: string
+          summary: string
+          url: string
+        }
+        Update: {
+          credibility?: string
+          fact_check_id?: string | null
+          id?: string
+          name?: string
+          summary?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sources_fact_check_id_fkey"
+            columns: ["fact_check_id"]
+            isOneToOne: false
+            referencedRelation: "fact_checks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

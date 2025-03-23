@@ -15,11 +15,11 @@ interface SourceInfo {
 }
 
 export interface ResultData {
+  id?: string;
   status: TruthStatus;
   confidence: number;
-  sources: string[];
+  sources: SourceInfo[];
   reasoning: string;
-  sourceDetails?: SourceInfo[];
 }
 
 interface AnalysisResultProps {
@@ -30,28 +30,6 @@ interface AnalysisResultProps {
 export default function AnalysisResult({ result, query }: AnalysisResultProps) {
   const { t } = useLanguage();
   const { toast } = useToast();
-
-  const sourceDetails = result.sourceDetails || result.sources.map((source, index) => {
-    const credibility: "high" | "medium" | "low" = 
-      result.status === "true" ? "high" : 
-      result.status === "questionable" ? "medium" : "low";
-    
-    let summary = "";
-    if (result.status === "true") {
-      summary = `Confirms the accuracy of this statement with evidence-based reporting.`;
-    } else if (result.status === "questionable") {
-      summary = `Provides partial confirmation but notes some misleading elements in the claim.`;
-    } else {
-      summary = `Directly contradicts this claim with factual evidence from multiple sources.`;
-    }
-    
-    return {
-      name: source,
-      url: `https://${source}/fact-check`,
-      credibility,
-      summary
-    };
-  });
 
   const getStatusIcon = (status: TruthStatus) => {
     switch (status) {
@@ -125,7 +103,7 @@ Statement: "${query}"
 Result: ${getStatusText(result.status)}
 Confidence: ${result.confidence * 100}%
 Reasoning: ${result.reasoning}
-Sources: ${result.sources.join(", ")}
+Sources: ${result.sources.map(s => s.name).join(", ")}
     `;
     
     navigator.clipboard.writeText(text);
@@ -170,7 +148,7 @@ Sources: ${result.sources.join(", ")}
       <div className="p-4 border-b dark:border-gray-700">
         <h4 className="font-medium mb-2">{t("sources")}</h4>
         <div className="space-y-3">
-          {sourceDetails.map((source, i) => (
+          {result.sources.map((source, i) => (
             <div key={i} className="bg-muted p-3 rounded dark:bg-gray-700">
               <div className="flex justify-between items-center mb-2">
                 <div className="flex items-center gap-2">
