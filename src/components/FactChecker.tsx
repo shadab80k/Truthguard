@@ -51,7 +51,7 @@ export default function FactChecker() {
         
         // Check if it's a quota exceeded error
         if (error.message && error.message.includes('quota')) {
-          setErrorMessage("OpenAI API quota exceeded. Please try again later or upgrade your plan.");
+          setErrorMessage("Google AI API quota exceeded. Please try again later or upgrade your plan.");
         } else {
           setErrorMessage(`Error: ${error.message || "Failed to check facts"}`);
         }
@@ -98,7 +98,7 @@ export default function FactChecker() {
           <CardHeader className="pb-2">
             <CardTitle className="text-xl font-medium">TruthGuard Analyzer</CardTitle>
             <CardDescription>
-              Get instant fact-checking results with AI-powered analysis
+              Get instant fact-checking results with Google AI-powered analysis
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-4">

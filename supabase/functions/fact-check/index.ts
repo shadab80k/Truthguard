@@ -35,12 +35,12 @@ serve(async (req) => {
       );
     }
 
-    // Initialize the OpenAI API client
-    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openaiApiKey) {
-      console.error('OpenAI API key is not configured');
+    // Initialize the Google AI API client
+    const googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY');
+    if (!googleApiKey) {
+      console.error('Google AI API key is not configured');
       return new Response(
-        JSON.stringify({ error: 'OpenAI API key is not configured' }),
+        JSON.stringify({ error: 'Google AI API key is not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -48,89 +48,104 @@ serve(async (req) => {
     console.log(`Processing fact check for statement: ${statement}`);
 
     try {
-      // Call OpenAI for fact checking
-      const factCheckResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+      // Call Google's Gemini API for fact checking
+      const factCheckResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${openaiApiKey}`,
           'Content-Type': 'application/json',
+          'x-goog-api-key': googleApiKey,
         },
         body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            {
-              role: 'system',
-              content: `You are a fact-checking assistant. Analyze the statement for factual accuracy and provide a detailed assessment. 
-              Return a JSON response with the following structure:
-              {
-                "status": "true" | "questionable" | "fake",
-                "confidence": <number between 0 and 1>,
-                "reasoning": "<detailed explanation>",
-                "sources": [
-                  {
-                    "name": "<source name>",
-                    "url": "<source url>",
-                    "credibility": "high" | "medium" | "low",
-                    "summary": "<how this source addresses the fact>"
-                  }
-                ]
-              }`
-            },
+          contents: [
             {
               role: 'user',
-              content: `Fact check the following statement: "${statement}"`
+              parts: [
+                {
+                  text: `You are a fact-checking assistant. Analyze the statement for factual accuracy and provide a detailed assessment.
+                  Return a JSON response with the following structure:
+                  {
+                    "status": "true" | "questionable" | "fake",
+                    "confidence": <number between 0 and 1>,
+                    "reasoning": "<detailed explanation>",
+                    "sources": [
+                      {
+                        "name": "<source name>",
+                        "url": "<source url>",
+                        "credibility": "high" | "medium" | "low",
+                        "summary": "<how this source addresses the fact>"
+                      }
+                    ]
+                  }
+                  
+                  Fact check this statement: "${statement}"`
+                }
+              ]
             }
           ],
-          temperature: 0.1,
-          response_format: { type: "json_object" }
+          generationConfig: {
+            temperature: 0.1,
+            candidateCount: 1,
+          }
         }),
       });
 
       if (!factCheckResponse.ok) {
         const errorText = await factCheckResponse.text();
-        console.error('OpenAI API error status:', factCheckResponse.status);
-        console.error('OpenAI API error response:', errorText);
+        console.error('Google AI API error status:', factCheckResponse.status);
+        console.error('Google AI API error response:', errorText);
         
         let errorData;
         try {
           errorData = JSON.parse(errorText);
         } catch (e) {
-          errorData = { error: { message: 'Unknown error from OpenAI API' } };
+          errorData = { error: { message: 'Unknown error from Google AI API' } };
         }
         
         let errorMessage = errorData.error?.message || 'Unknown error';
         
         // Check for quota exceeded error
-        if (errorMessage.includes('quota') || errorMessage.includes('billing')) {
-          console.error('OpenAI API quota exceeded or billing issue');
+        if (errorMessage.includes('quota') || errorMessage.includes('billing') || errorMessage.includes('limit')) {
+          console.error('Google AI API quota exceeded or billing issue');
           return new Response(
-            JSON.stringify({ error: `OpenAI API quota exceeded: ${errorMessage}` }),
+            JSON.stringify({ error: `Google AI API quota exceeded: ${errorMessage}` }),
             { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
         
         return new Response(
-          JSON.stringify({ error: `OpenAI API error: ${errorMessage}` }),
+          JSON.stringify({ error: `Google AI API error: ${errorMessage}` }),
           { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
-      const completion = await factCheckResponse.json();
+      const responseData = await factCheckResponse.json();
       
-      if (!completion.choices || !completion.choices[0] || !completion.choices[0].message) {
-        console.error('Unexpected OpenAI response format:', completion);
+      if (!responseData.candidates || !responseData.candidates[0] || !responseData.candidates[0].content) {
+        console.error('Unexpected Google AI response format:', responseData);
         return new Response(
-          JSON.stringify({ error: 'Unexpected response format from OpenAI' }),
+          JSON.stringify({ error: 'Unexpected response format from Google AI' }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
       
+      const textContent = responseData.candidates[0].content.parts[0].text;
+      
+      // Extract JSON from the response text
       let resultJson;
       try {
-        resultJson = JSON.parse(completion.choices[0].message.content);
+        // Find the start and end of JSON in the response text
+        const jsonStartIndex = textContent.indexOf('{');
+        const jsonEndIndex = textContent.lastIndexOf('}') + 1;
+        
+        if (jsonStartIndex !== -1 && jsonEndIndex !== -1) {
+          const jsonString = textContent.substring(jsonStartIndex, jsonEndIndex);
+          resultJson = JSON.parse(jsonString);
+        } else {
+          throw new Error('No JSON found in response');
+        }
       } catch (e) {
-        console.error('Error parsing JSON from OpenAI:', e);
-        console.error('Raw content:', completion.choices[0].message.content);
+        console.error('Error parsing JSON from Google AI:', e);
+        console.error('Raw content:', textContent);
         return new Response(
           JSON.stringify({ error: 'Error parsing AI response' }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -215,10 +230,10 @@ serve(async (req) => {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         }
       );
-    } catch (openAiError) {
-      console.error('Error calling OpenAI:', openAiError);
+    } catch (aiError) {
+      console.error('Error calling Google AI:', aiError);
       return new Response(
-        JSON.stringify({ error: 'Error communicating with AI service: ' + openAiError.message }),
+        JSON.stringify({ error: 'Error communicating with AI service: ' + aiError.message }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
