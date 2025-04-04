@@ -1,3 +1,4 @@
+
 import { motion } from 'framer-motion';
 import { CheckCircle, AlertTriangle, ShieldAlert, ExternalLink, Copy, Info, Link, Check, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -114,6 +115,20 @@ Sources: ${result.sources.map(s => s.name).join(", ")}
     });
   };
 
+  const openSourceLink = (url: string, event: React.MouseEvent) => {
+    // Prevent the default behavior 
+    event.preventDefault();
+    
+    // Ensure URL has proper formatting
+    let formattedUrl = url;
+    if (!/^https?:\/\//i.test(url)) {
+      formattedUrl = 'https://' + url;
+    }
+    
+    // Open the link in a new tab
+    window.open(formattedUrl, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -153,15 +168,13 @@ Sources: ${result.sources.map(s => s.name).join(", ")}
               <div className="flex justify-between items-center mb-2">
                 <div className="flex items-center gap-2">
                   <Link className="h-4 w-4 text-primary" />
-                  <a 
-                    href={source.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
+                  <button 
+                    onClick={(e) => openSourceLink(source.url, e)}
                     className="text-sm font-medium text-primary flex items-center gap-1 hover:underline"
                   >
                     {source.name}
                     <ExternalLink className="h-3 w-3" />
-                  </a>
+                  </button>
                 </div>
                 <Badge className={`px-2 py-0.5 text-xs flex items-center gap-1 ${getSourceCredibilityColor(source.credibility)}`}>
                   {getSourceCredibilityIcon(source.credibility)}
