@@ -121,11 +121,11 @@ Sources: ${result.sources.map(s => s.name).join(", ")}
     
     // Ensure URL has proper formatting
     let formattedUrl = url;
-    if (!/^https?:\/\//i.test(url)) {
-      formattedUrl = 'https://' + url;
+    if (!formattedUrl.match(/^https?:\/\//i)) {
+      formattedUrl = 'https://' + formattedUrl;
     }
     
-    // Open the link in a new tab
+    // Open the link in a new tab with security attributes
     window.open(formattedUrl, '_blank', 'noopener,noreferrer');
   };
 
