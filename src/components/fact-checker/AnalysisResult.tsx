@@ -1,6 +1,6 @@
 
 import { motion } from 'framer-motion';
-import { CheckCircle, AlertTriangle, ShieldAlert, ExternalLink, Copy, Info, Link, Check, X, Clock } from 'lucide-react';
+import { CheckCircle, AlertTriangle, ShieldAlert, ExternalLink, Copy, Info, Link, Check, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -124,24 +124,6 @@ Sources: ${result.sources.map(s => s.name).join(", ")}
     });
   };
 
-  // Format date for recent news
-  const formatDate = (dateStr: string) => {
-    try {
-      const date = new Date(dateStr);
-      return new Intl.DateTimeFormat('en-US', { 
-        month: 'short', 
-        day: 'numeric', 
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }).format(date);
-    } catch (e) {
-      return dateStr;
-    }
-  };
-
-  const hasRecentNews = result.recentNews && result.recentNews.length > 0;
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -172,40 +154,6 @@ Sources: ${result.sources.map(s => s.name).join(", ")}
         <h4 className="font-medium mb-2">{t("reasoning")}</h4>
         <p className="text-sm">{result.reasoning}</p>
       </div>
-      
-      {hasRecentNews && (
-        <div className="p-4 border-b dark:border-gray-700">
-          <h4 className="font-medium mb-2 flex items-center gap-2">
-            <Clock className="h-4 w-4 text-primary" />
-            Recent News
-            <Badge variant="outline" className="ml-2 text-xs">Real-time data</Badge>
-          </h4>
-          <div className="space-y-3">
-            {result.recentNews.map((article, i) => (
-              <div key={i} className="bg-muted p-3 rounded dark:bg-gray-700">
-                <div className="flex justify-between items-start mb-1">
-                  <a 
-                    href={article.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-sm font-medium text-primary flex items-center gap-1 hover:underline"
-                  >
-                    {article.title}
-                    <ExternalLink className="h-3 w-3 flex-shrink-0 ml-1" />
-                  </a>
-                </div>
-                <div className="flex justify-between items-center text-xs text-muted-foreground mb-2">
-                  <span>{article.source}</span>
-                  <span>{formatDate(article.publishedAt)}</span>
-                </div>
-                {article.description && (
-                  <p className="text-xs text-muted-foreground">{article.description}</p>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
       
       <div className="p-4 border-b dark:border-gray-700">
         <h4 className="font-medium mb-2">{t("sources")}</h4>
@@ -274,11 +222,6 @@ Sources: ${result.sources.map(s => s.name).join(", ")}
             {result.status === "fake" && (
               <p className="text-truth-red flex items-center gap-1">
                 <ShieldAlert className="h-3 w-3" /> Contains false information contradicted by evidence
-              </p>
-            )}
-            {hasRecentNews && (
-              <p className="text-primary flex items-center gap-1 mt-1">
-                <Clock className="h-3 w-3" /> Analysis includes real-time news data
               </p>
             )}
           </div>
