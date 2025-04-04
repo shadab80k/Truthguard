@@ -1,4 +1,3 @@
-
 import { motion } from 'framer-motion';
 import { CheckCircle, AlertTriangle, ShieldAlert, ExternalLink, Copy, Info, Link, Check, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -15,21 +14,12 @@ interface SourceInfo {
   summary: string;
 }
 
-interface NewsArticle {
-  title: string;
-  url: string;
-  source: string;
-  publishedAt: string;
-  description?: string;
-}
-
 export interface ResultData {
   id?: string;
   status: TruthStatus;
   confidence: number;
   sources: SourceInfo[];
   reasoning: string;
-  recentNews?: NewsArticle[];
 }
 
 interface AnalysisResultProps {

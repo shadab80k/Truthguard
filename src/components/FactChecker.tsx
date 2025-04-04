@@ -14,22 +14,10 @@ import { XCircle, AlertTriangle } from 'lucide-react';
 
 type ResultStatus = "loading" | "idle" | "complete" | "error";
 
-export interface RecentNews {
-  title: string;
-  url: string;
-  source: string;
-  publishedAt: string;
-  description?: string;
-}
-
-export interface FactCheckResult extends ResultData {
-  recentNews?: RecentNews[];
-}
-
 export default function FactChecker() {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<ResultStatus>("idle");
-  const [result, setResult] = useState<FactCheckResult | null>(null);
+  const [result, setResult] = useState<ResultData | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { toast } = useToast();
   const { t } = useLanguage();
@@ -64,8 +52,6 @@ export default function FactChecker() {
         // Check if it's a quota exceeded error
         if (error.message && error.message.includes('quota')) {
           setErrorMessage("Google AI API quota exceeded. Please try again later or upgrade your plan.");
-        } else if (error.message && error.message.includes('News API')) {
-          setErrorMessage(`Error with News API: ${error.message || "Failed to fetch real-time news"}`);
         } else {
           setErrorMessage(`Error: ${error.message || "Failed to check facts"}`);
         }
