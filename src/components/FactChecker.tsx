@@ -10,7 +10,7 @@ import LoadingIndicator from './fact-checker/LoadingIndicator';
 import FactCheckerForm from './fact-checker/FactCheckerForm';
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { XCircle, AlertTriangle } from 'lucide-react';
+import { XCircle, AlertTriangle, Clock } from 'lucide-react';
 
 type ResultStatus = "loading" | "idle" | "complete" | "error";
 
@@ -52,6 +52,8 @@ export default function FactChecker() {
         // Check if it's a quota exceeded error
         if (error.message && error.message.includes('quota')) {
           setErrorMessage("Google AI API quota exceeded. Please try again later or upgrade your plan.");
+        } else if (error.message && error.message.includes('News API')) {
+          setErrorMessage(`Error with News API: ${error.message || "Failed to fetch real-time news"}`);
         } else {
           setErrorMessage(`Error: ${error.message || "Failed to check facts"}`);
         }
@@ -70,6 +72,15 @@ export default function FactChecker() {
       setTimeout(() => {
         setResult(data);
         setStatus("complete");
+        
+        // Show toast if we have real-time news
+        if (data.recentNews && data.recentNews.length > 0) {
+          toast({
+            title: "Real-Time Data Included",
+            description: `Analysis includes ${data.recentNews.length} recent news articles relevant to your query.`,
+            variant: "default",
+          });
+        }
       }, 1000);
 
     } catch (error) {
@@ -92,13 +103,17 @@ export default function FactChecker() {
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Enter any statement, news headline, or claim to get an AI-powered analysis of its credibility in seconds.
           </p>
+          <Badge variant="secondary" className="mt-3 px-3 py-1 flex items-center gap-1 mx-auto">
+            <Clock className="h-3 w-3" />
+            <span>Now with real-time news data</span>
+          </Badge>
         </div>
 
         <Card className="shadow-soft mx-auto overflow-hidden transition-all duration-300 hover:shadow-xl border-t-4 border-t-primary dark:bg-gray-800 dark:border-gray-700">
           <CardHeader className="pb-2">
             <CardTitle className="text-xl font-medium">TruthGuard Analyzer</CardTitle>
             <CardDescription>
-              Get instant fact-checking results with Google AI-powered analysis
+              Get instant fact-checking results with Google AI-powered analysis enhanced with real-time news
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-4">

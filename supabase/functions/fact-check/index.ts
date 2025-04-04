@@ -45,9 +45,97 @@ serve(async (req) => {
       );
     }
 
+    // Initialize News API key
+    const newsApiKey = Deno.env.get('NEWS_API_KEY');
+    if (!newsApiKey) {
+      console.error('News API key is not configured');
+      console.log('Continuing without real-time news data');
+    }
+
     console.log(`Processing fact check for statement: ${statement}`);
 
+    // Fetch recent news articles related to the statement
+    let recentNews = [];
+    if (newsApiKey) {
+      try {
+        // Extract keywords from the statement (simple approach)
+        const keywords = statement
+          .toLowerCase()
+          .split(/\s+/)
+          .filter(word => word.length > 3)
+          .filter(word => !['what', 'when', 'where', 'which', 'who', 'whom', 'whose', 'why', 'how', 'that', 'this', 'these', 'those', 'with', 'from', 'into', 'during', 'including', 'until', 'against', 'among', 'throughout', 'despite', 'towards', 'upon', 'while', 'about', 'above', 'across', 'after', 'along', 'around', 'because', 'before', 'behind', 'below', 'beneath', 'beside', 'between', 'beyond', 'during', 'except', 'inside', 'outside', 'through', 'toward', 'under', 'underneath', 'unlike', 'since'].includes(word))
+          .join(' OR ');
+
+        if (keywords.length > 0) {
+          console.log(`Searching news API for keywords: ${keywords}`);
+          const newsResponse = await fetch(
+            `https://newsapi.org/v2/everything?q=${encodeURIComponent(keywords)}&language=en&sortBy=publishedAt&pageSize=5`,
+            {
+              headers: {
+                'X-Api-Key': newsApiKey
+              }
+            }
+          );
+
+          if (!newsResponse.ok) {
+            throw new Error(`News API returned status ${newsResponse.status}`);
+          }
+
+          const newsData = await newsResponse.json();
+          
+          // Process news articles
+          if (newsData.articles && newsData.articles.length > 0) {
+            recentNews = newsData.articles.map(article => ({
+              title: article.title,
+              url: article.url,
+              source: article.source.name,
+              publishedAt: article.publishedAt,
+              description: article.description
+            }));
+            console.log(`Found ${recentNews.length} recent news articles`);
+          } else {
+            console.log('No recent news articles found');
+          }
+        }
+      } catch (newsError) {
+        console.error('Error fetching news data:', newsError);
+        // Continue without news data
+      }
+    }
+
     try {
+      // Prepare the prompt for Gemini with real-time news context
+      let promptText = `You are a fact-checking assistant. Analyze the statement for factual accuracy and provide a detailed assessment.`;
+      
+      // Add real-time news context if available
+      if (recentNews.length > 0) {
+        promptText += `\n\nHere is recent news information related to this statement:`;
+        recentNews.forEach((article, index) => {
+          promptText += `\n${index + 1}. ${article.title} (${article.source}, ${new Date(article.publishedAt).toLocaleDateString()})`;
+          if (article.description) {
+            promptText += `\n   ${article.description}`;
+          }
+        });
+        promptText += `\n\nPlease consider this recent information in your analysis.`;
+      }
+      
+      promptText += `\nReturn a JSON response with the following structure:
+      {
+        "status": "true" | "questionable" | "fake",
+        "confidence": <number between 0 and 1>,
+        "reasoning": "<detailed explanation>",
+        "sources": [
+          {
+            "name": "<source name>",
+            "url": "<source url>",
+            "credibility": "high" | "medium" | "low",
+            "summary": "<how this source addresses the fact>"
+          }
+        ]
+      }
+      
+      Fact check this statement: "${statement}"`;
+
       // Call Google's Gemini API for fact checking
       const factCheckResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent', {
         method: 'POST',
@@ -61,23 +149,7 @@ serve(async (req) => {
               role: 'user',
               parts: [
                 {
-                  text: `You are a fact-checking assistant. Analyze the statement for factual accuracy and provide a detailed assessment.
-                  Return a JSON response with the following structure:
-                  {
-                    "status": "true" | "questionable" | "fake",
-                    "confidence": <number between 0 and 1>,
-                    "reasoning": "<detailed explanation>",
-                    "sources": [
-                      {
-                        "name": "<source name>",
-                        "url": "<source url>",
-                        "credibility": "high" | "medium" | "low",
-                        "summary": "<how this source addresses the fact>"
-                      }
-                    ]
-                  }
-                  
-                  Fact check this statement: "${statement}"`
+                  text: promptText
                 }
               ]
             }
@@ -224,7 +296,8 @@ serve(async (req) => {
           status: resultJson.status,
           confidence: resultJson.confidence,
           reasoning: resultJson.reasoning,
-          sources: resultJson.sources
+          sources: resultJson.sources,
+          recentNews: recentNews
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
