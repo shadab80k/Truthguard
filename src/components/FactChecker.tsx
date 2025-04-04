@@ -10,14 +10,26 @@ import LoadingIndicator from './fact-checker/LoadingIndicator';
 import FactCheckerForm from './fact-checker/FactCheckerForm';
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { XCircle, AlertTriangle, Clock } from 'lucide-react';
+import { XCircle, AlertTriangle, Clock, Newspaper } from 'lucide-react';
 
 type ResultStatus = "loading" | "idle" | "complete" | "error";
+
+export interface RecentNews {
+  title: string;
+  url: string;
+  source: string;
+  publishedAt: string;
+  description?: string;
+}
+
+export interface FactCheckResult extends ResultData {
+  recentNews?: RecentNews[];
+}
 
 export default function FactChecker() {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<ResultStatus>("idle");
-  const [result, setResult] = useState<ResultData | null>(null);
+  const [result, setResult] = useState<FactCheckResult | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { toast } = useToast();
   const { t } = useLanguage();
@@ -104,8 +116,8 @@ export default function FactChecker() {
             Enter any statement, news headline, or claim to get an AI-powered analysis of its credibility in seconds.
           </p>
           <Badge variant="secondary" className="mt-3 px-3 py-1 flex items-center gap-1 mx-auto">
-            <Clock className="h-3 w-3" />
-            <span>Now with real-time news data</span>
+            <Newspaper className="h-3 w-3" />
+            <span>Enhanced with real-time news data</span>
           </Badge>
         </div>
 
