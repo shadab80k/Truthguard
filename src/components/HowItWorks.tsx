@@ -2,8 +2,13 @@
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { CircleCheck, Sparkles, Search, FileCheck } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 export default function HowItWorks() {
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
+  
   const steps = [
     {
       icon: <Search className="h-10 w-10" />,
@@ -26,6 +31,12 @@ export default function HowItWorks() {
       description: "Use the analysis to determine the reliability of information and share factual content confidently."
     }
   ];
+
+  const handleTryItNow = () => {
+    if (isHomePage) {
+      document.getElementById('fact-checker')?.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
     <section id="how-it-works" className="py-20 px-6 bg-white dark:bg-gray-950">
@@ -82,12 +93,21 @@ export default function HowItWorks() {
           viewport={{ once: true }}
           className="mt-16 text-center"
         >
-          <button 
-            className="px-8 py-3 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors shadow-md hover:shadow-lg"
-            onClick={() => document.getElementById('fact-checker')?.scrollIntoView({ behavior: 'smooth' })}
-          >
-            Try It Now
-          </button>
+          {isHomePage ? (
+            <button 
+              className="px-8 py-3 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors shadow-md hover:shadow-lg"
+              onClick={handleTryItNow}
+            >
+              Try It Now
+            </button>
+          ) : (
+            <Link 
+              to="/#fact-checker"
+              className="inline-block px-8 py-3 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors shadow-md hover:shadow-lg"
+            >
+              Try It Now
+            </Link>
+          )}
         </motion.div>
       </div>
     </section>
