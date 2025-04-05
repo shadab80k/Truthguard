@@ -150,7 +150,7 @@ export default function Footer() {
             © {new Date().getFullYear()} TruthGuard. All rights reserved.
           </p>
           <div className="flex gap-6">
-            <Link to="/privacy-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            <Link to="/privacy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
               Privacy Policy
             </Link>
             <Link to="/terms" className="text-sm text-muted-foreground hover:text-primary transition-colors">
