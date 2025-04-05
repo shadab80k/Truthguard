@@ -1,52 +1,42 @@
-
 import { motion } from 'framer-motion';
-import { 
-  ShieldCheck, Zap, Globe, Cpu, Lightbulb, BarChart4, RefreshCw, Trophy 
-} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import InfoCard from './InfoCard';
+import { Shield, Newspaper, Database, MoveUpRight, Brain, Lock } from 'lucide-react';
+import InfoCard from '@/components/InfoCard';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Features() {
+  const { t } = useLanguage();
+  
   const features = [
     {
-      icon: <ShieldCheck className="h-6 w-6" />,
-      title: "AI-Powered Detection",
-      description: "Advanced AI models analyze news content and detect misinformation patterns in real-time."
+      icon: <Shield className="h-6 w-6" />,
+      title: t('accurateAnalysis'),
+      description: t('accurateAnalysisDesc')
     },
     {
-      icon: <Zap className="h-6 w-6" />,
-      title: "5-Second Verification",
-      description: "Get instant results in under 5 seconds, allowing you to quickly identify fake news."
+      icon: <Newspaper className="h-6 w-6" />,
+      title: t('sourceValidation'),
+      description: t('sourceValidationDesc')
     },
     {
-      icon: <Globe className="h-6 w-6" />,
-      title: "Multi-Source Validation",
-      description: "Cross-references information with trusted fact-checking sources and databases."
+      icon: <Database className="h-6 w-6" />,
+      title: t('comprehensiveDatabase'),
+      description: t('comprehensiveDatabaseDesc')
     },
     {
-      icon: <Cpu className="h-6 w-6" />,
-      title: "Autonomous AI Agents",
-      description: "LangChain agents autonomously research, verify facts, and generate detailed reports."
+      icon: <MoveUpRight className="h-6 w-6" />,
+      title: t('realTimeMonitoring'),
+      description: t('realTimeMonitoringDesc')
     },
     {
-      icon: <Lightbulb className="h-6 w-6" />,
-      title: "Explainable Results",
-      description: "Transparent reasoning that explains why content was flagged as true, questionable, or fake."
+      icon: <Brain className="h-6 w-6" />,
+      title: t('advancedAI'),
+      description: t('advancedAIDesc')
     },
     {
-      icon: <BarChart4 className="h-6 w-6" />,
-      title: "Analytics Dashboard",
-      description: "Visual breakdown of credibility scores, keywords, and source reliability metrics."
-    },
-    {
-      icon: <RefreshCw className="h-6 w-6" />,
-      title: "Continuous Learning",
-      description: "System improves over time with user feedback and new verified information sources."
-    },
-    {
-      icon: <Trophy className="h-6 w-6" />,
-      title: "Truth Points System",
-      description: "Earn rewards for reporting and correctly identifying misinformation in the wild."
+      icon: <Lock className="h-6 w-6" />,
+      title: t('secureTrustworthy'),
+      description: t('secureTrustworthyDesc')
     }
   ];
 
