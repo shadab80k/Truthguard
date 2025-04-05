@@ -53,7 +53,7 @@ const PricingPage = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
       <NavBar />
       <main className="flex-grow">
         <section className="py-16 px-4 md:py-24">
@@ -97,8 +97,8 @@ const PricingPage = () => {
                     </CardHeader>
                     <CardContent className="flex-grow">
                       <ul className="space-y-3">
-                        {tier.features.map((feature, i) => (
-                          <li key={i} className="flex items-center">
+                        {tier.features.map((feature, j) => (
+                          <li key={j} className="flex items-center">
                             <Check className="h-4 w-4 text-primary mr-2" />
                             <span className="text-sm">{feature}</span>
                           </li>

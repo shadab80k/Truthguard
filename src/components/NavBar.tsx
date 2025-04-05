@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { Menu, X, Moon, Sun } from 'lucide-react';
@@ -8,7 +9,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 const NavBar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { isDarkMode, toggleTheme } = useTheme();
+  const { theme, isDarkMode, toggleTheme } = useTheme();
   const { t } = useLanguage();
   const location = useLocation();
   const isHomePage = location.pathname === '/';
