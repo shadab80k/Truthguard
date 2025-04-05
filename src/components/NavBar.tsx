@@ -7,14 +7,12 @@ import { cn } from '@/lib/utils';
 import ThemeToggle from './ThemeToggle';
 import LanguageSelector from './LanguageSelector';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Link as RouterLink, useLocation } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 
 export default function NavBar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { t } = useLanguage();
-  const location = useLocation();
-  const isHomePage = location.pathname === '/';
   
   useEffect(() => {
     const handleScroll = () => {
@@ -25,33 +23,21 @@ export default function NavBar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
   
-  // Helper to create links that work correctly on any page
-  const getNavHref = (anchor: string) => {
-    if (isHomePage && anchor.startsWith('#')) {
-      return anchor; // On home page, use anchor links directly
-    } else if (anchor.startsWith('#')) {
-      return `/${anchor}`; // On other pages, navigate to home + anchor
-    }
-    return anchor; // For non-anchor links
-  };
-
   const navLinks = [
-    { name: t('home'), href: isHomePage ? '#' : '/' },
-    { name: t('features'), href: getNavHref('#features') },
-    { name: t('howItWorks'), href: getNavHref('#how-it-works') },
-    { name: t('tryIt'), href: getNavHref('#fact-checker') },
+    { name: t('home'), href: '#' },
+    { name: t('features'), href: '#features' },
+    { name: t('howItWorks'), href: '#how-it-works' },
+    { name: t('tryIt'), href: '#fact-checker' },
   ];
 
   const handleGetStarted = () => {
     // If we're on the home page, scroll to the fact-checker section
-    if (isHomePage) {
-      const factCheckerSection = document.getElementById('fact-checker');
-      if (factCheckerSection) {
-        factCheckerSection.scrollIntoView({ behavior: 'smooth' });
-      }
+    const factCheckerSection = document.getElementById('fact-checker');
+    if (factCheckerSection) {
+      factCheckerSection.scrollIntoView({ behavior: 'smooth' });
     } else {
-      // If not on home page, navigate to the home page fact-checker section
-      window.location.href = '/#fact-checker';
+      // If not on home page, navigate to the pricing page
+      window.location.href = '/pricing';
     }
   };
   
@@ -65,50 +51,29 @@ export default function NavBar() {
       )}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <motion.div 
+        <motion.a 
+          href="#"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
           className="flex items-center gap-2"
         >
-          {isHomePage ? (
-            <a href="#" className="flex items-center gap-2">
-              <Shield className="h-8 w-8 text-primary" />
-              <span className="font-bold text-xl">TruthGuard</span>
-            </a>
-          ) : (
-            <RouterLink to="/" className="flex items-center gap-2">
-              <Shield className="h-8 w-8 text-primary" />
-              <span className="font-bold text-xl">TruthGuard</span>
-            </RouterLink>
-          )}
-        </motion.div>
+          <Shield className="h-8 w-8 text-primary" />
+          <span className="font-bold text-xl">TruthGuard</span>
+        </motion.a>
         
         <nav className="hidden md:flex items-center gap-8">
           {navLinks.map((link, i) => (
-            <motion.div
+            <motion.a
               key={link.name}
+              href={link.href}
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 * i }}
-              className="text-sm font-medium"
+              className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors"
             >
-              {link.href.startsWith('#') && isHomePage ? (
-                <a 
-                  href={link.href}
-                  className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors"
-                >
-                  {link.name}
-                </a>
-              ) : (
-                <RouterLink 
-                  to={link.href}
-                  className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors"
-                >
-                  {link.name}
-                </RouterLink>
-              )}
-            </motion.div>
+              {link.name}
+            </motion.a>
           ))}
         </nav>
         
@@ -156,25 +121,14 @@ export default function NavBar() {
           >
             <div className="px-6 py-4 space-y-4 flex flex-col">
               {navLinks.map((link) => (
-                <div key={link.name}>
-                  {link.href.startsWith('#') && isHomePage ? (
-                    <a
-                      href={link.href}
-                      className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary py-2 transition-colors block"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      {link.name}
-                    </a>
-                  ) : (
-                    <RouterLink
-                      to={link.href}
-                      className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary py-2 transition-colors block"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      {link.name}
-                    </RouterLink>
-                  )}
-                </div>
+                <a
+                  key={link.name}
+                  href={link.href}
+                  className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary py-2 transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {link.name}
+                </a>
               ))}
               <Button 
                 variant="default" 

@@ -1,7 +1,6 @@
 
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { useLocation } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import Hero from '@/components/Hero';
 import Features from '@/components/Features';
@@ -10,10 +9,7 @@ import FactChecker from '@/components/FactChecker';
 import Footer from '@/components/Footer';
 
 const Index = () => {
-  const location = useLocation();
-  const scrolled = useRef(false);
-
-  // Handle smooth scrolling for anchor links
+  // Smooth scroll function for anchor links
   useEffect(() => {
     const handleAnchorClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -33,27 +29,6 @@ const Index = () => {
     document.addEventListener('click', handleAnchorClick);
     return () => document.removeEventListener('click', handleAnchorClick);
   }, []);
-
-  // Handle scrolling to section based on URL hash
-  useEffect(() => {
-    if (location.hash && !scrolled.current) {
-      const id = location.hash.substring(1);
-      const element = document.getElementById(id);
-      
-      if (element) {
-        // Add a small delay to ensure the page is fully loaded
-        setTimeout(() => {
-          element.scrollIntoView({ behavior: 'smooth' });
-          scrolled.current = true;
-        }, 100);
-      }
-    }
-    
-    // Reset the flag when the hash changes
-    return () => {
-      scrolled.current = false;
-    };
-  }, [location.hash]);
 
   return (
     <AnimatePresence>
