@@ -1,176 +1,183 @@
 
-import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate, Link } from 'react-router-dom';
-import { ArrowRight, Check } from 'lucide-react';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { Badge } from '@/components/ui/badge';
+import { Shield, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 export default function Hero() {
-  const { t } = useLanguage();
-  const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const isHomePage = window.location.pathname === '/';
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email) {
-      console.log('Email submitted:', email);
-      navigate('/pricing', { state: { email } });
-    }
+  const backgroundVariants = {
+    initial: {
+      backgroundPosition: '0% 50%',
+    },
+    animate: {
+      backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+      transition: {
+        duration: 20,
+        ease: 'linear',
+        repeat: Infinity,
+      },
+    },
   };
 
-  const handleTryItNow = () => {
-    if (isHomePage) {
-      const element = document.getElementById('fact-checker');
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    } else {
-      navigate('/#fact-checker');
-    }
+  const fadeInUpVariants = {
+    initial: { opacity: 0, y: 20 },
+    animate: (index: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        delay: 0.2 + index * 0.1,
+      },
+    }),
   };
 
-  const steps = [
-    {
-      icon: <Check className="h-6 w-6" />,
-      title: t('step1Title'),
-      description: t('step1Desc')
+  const features = [
+    { 
+      icon: <Shield className="h-5 w-5" />, 
+      text: "AI-powered fact checking" 
     },
-    {
-      icon: <Check className="h-6 w-6" />,
-      title: t('step2Title'),
-      description: t('step2Desc')
+    { 
+      icon: <CheckCircle2 className="h-5 w-5" />, 
+      text: "Real-time verification" 
     },
-    {
-      icon: <Check className="h-6 w-6" />,
-      title: t('step3Title'),
-      description: t('step3Desc')
+    { 
+      icon: <AlertCircle className="h-5 w-5" />, 
+      text: "Multi-source validation" 
     },
-    {
-      icon: <Check className="h-6 w-6" />,
-      title: t('step4Title'),
-      description: t('step4Desc')
-    }
   ];
 
   return (
-    <section className="bg-white dark:bg-gray-900">
-      <div className="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6">
-        <div className="mx-auto max-w-screen-md text-center mb-8 lg:mb-12">
+    <div className="relative min-h-screen overflow-hidden">
+      {/* Abstract background */}
+      <motion.div
+        variants={backgroundVariants}
+        initial="initial"
+        animate="animate"
+        className="absolute inset-0 bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-gray-900"
+      />
+      
+      {/* Dot pattern overlay */}
+      <div className="absolute inset-0 bg-dot-pattern opacity-[0.15]" />
+      
+      {/* Hero content */}
+      <div className="relative max-w-7xl mx-auto px-6 pt-32 pb-24 md:pt-40 md:pb-32">
+        <div className="grid md:grid-cols-2 gap-12 md:gap-6 lg:gap-12 items-center">
+          <div className="space-y-8">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium"
+            >
+              AI-Powered Fake News Detection
+            </motion.div>
+            
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight"
+            >
+              Guard the truth in <br className="hidden md:inline" />
+              <span className="text-primary">an era of misinformation</span>
+            </motion.h1>
+            
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-lg text-gray-600 dark:text-gray-300 max-w-lg"
+            >
+              TruthGuard uses advanced AI to detect fake news in real-time, providing you with credible information and detailed analysis.
+            </motion.p>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="flex flex-col sm:flex-row gap-4"
+            >
+              <Button 
+                className="px-8 py-6 text-base font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                onClick={() => document.getElementById('fact-checker')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                Try It Now
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                className="px-8 py-6 text-base font-medium border-2 hover:-translate-y-1 transition-all duration-300"
+                onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                Learn More
+              </Button>
+            </motion.div>
+            
+            <div className="flex flex-wrap gap-6 pt-4">
+              {features.map((feature, i) => (
+                <motion.div
+                  key={i}
+                  custom={i}
+                  variants={fadeInUpVariants}
+                  initial="initial"
+                  animate="animate"
+                  className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300"
+                >
+                  <div className={cn(
+                    "flex items-center justify-center h-8 w-8 rounded-full",
+                    "bg-primary/10 text-primary"
+                  )}>
+                    {feature.icon}
+                  </div>
+                  <span>{feature.text}</span>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+          
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.4 }}
+            className="flex justify-center md:justify-end"
           >
-            <Badge variant="outline" className="mb-4 px-3 py-1 text-primary">
-              {t('heroBadge')}
-            </Badge>
-            <h2 className="mb-4 text-3xl tracking-tight font-extrabold text-gray-900 dark:text-white">
-              {t('heroTitle')}
-            </h2>
-            <p className="font-light text-gray-500 dark:text-gray-400 sm:text-xl">
-              {t('heroDescription')}
-            </p>
+            <div className="relative w-full max-w-md">
+              {/* Main illustration or mockup */}
+              <div className="relative z-10 glass-card rounded-2xl shadow-soft overflow-hidden">
+                <div className="w-full h-[400px] md:h-[500px] bg-gradient-to-b from-blue-50 to-blue-100 dark:from-gray-800 dark:to-gray-900 flex items-center justify-center">
+                  <Shield className="w-32 h-32 text-primary animate-pulse-slow" />
+                </div>
+                
+                {/* Floating elements */}
+                <div className="absolute top-10 left-10 glass-card rounded-lg p-4 shadow-soft animate-float">
+                  <div className="flex items-center gap-3">
+                    <div className="h-3 w-3 rounded-full bg-truth-green"></div>
+                    <span className="text-sm font-medium">Verified Content</span>
+                  </div>
+                </div>
+                
+                <div className="absolute bottom-16 right-10 glass-card rounded-lg p-4 shadow-soft animate-float" style={{animationDelay: '1s'}}>
+                  <div className="flex items-center gap-3">
+                    <div className="h-3 w-3 rounded-full bg-truth-red"></div>
+                    <span className="text-sm font-medium">Fake Content Detected</span>
+                  </div>
+                </div>
+                
+                <div className="absolute bottom-40 left-12 glass-card rounded-lg p-4 shadow-soft animate-float" style={{animationDelay: '2s'}}>
+                  <div className="flex items-center gap-3">
+                    <div className="h-3 w-3 rounded-full bg-truth-yellow"></div>
+                    <span className="text-sm font-medium">Questionable Content</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Decorative elements */}
+              <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-primary/20 blur-xl"></div>
+              <div className="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-primary/20 blur-xl"></div>
+            </div>
           </motion.div>
         </div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          viewport={{ once: true }}
-          className="flex flex-col space-y-4 sm:gap-4 sm:space-y-0 sm:flex-row justify-center"
-        >
-          <form className="w-full max-w-md" onSubmit={handleSubmit}>
-            <label htmlFor="email" className="sr-only">
-              {t('emailAddress')}
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
-                <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 16">
-                  <path d="m10.036 8.278 9.258-7.79A1.979 1.979 0 0 0 18 0H2A1.987 1.987 0 0 0 .641.488l9.395 7.79zm-.457 1.134L1.324 1.82C1.058 1.546.776 1.299.5 1.079v11.641a1.979 1.979 0 0 0 1.388.878l9.549 7.907c.326.26.686.461 1.054.615a1.94 1.94 0 0 0 2.234 0c.368-.153.728-.354 1.054-.615l9.548-7.907a1.977 1.977 0 0 0 1.387-.878V1.079c-.276.22-.558.467-.824.741L10.479 9.412z" />
-                </svg>
-              </div>
-              <input
-                className="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-300 focus:border-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-300 dark:focus:border-primary-300"
-                placeholder={t('emailAddress')}
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              <button
-                type="submit"
-                className="text-white absolute end-2.5 bottom-2.5 bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-              >
-                {t('subscribe')}
-              </button>
-            </div>
-          </form>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
-          className="mx-auto max-w-screen-md text-center mt-8 lg:mt-12"
-        >
-          <p className="font-light text-gray-500 dark:text-gray-400 sm:text-xl">
-            {t('heroSteps')}
-          </p>
-        </motion.div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {steps.map((step, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              viewport={{ once: true }}
-              className="flex flex-col items-center text-center"
-            >
-              <div className="flex items-center justify-center h-16 w-16 rounded-full bg-primary/10 text-primary mb-4">
-                {step.icon}
-              </div>
-              <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
-              <p className="text-muted-foreground">{step.description}</p>
-              {index < steps.length - 1 && (
-                <div className="hidden lg:block absolute right-0 top-1/2 transform -translate-y-1/2 -translate-x-1/2">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M8.90997 19.92L15.43 13.4C16.2 12.63 16.2 11.37 15.43 10.6L8.90997 4.08" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-              )}
-            </motion.div>
-          ))}
-        </div>
-        
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          viewport={{ once: true }}
-          className="mt-16 text-center"
-        >
-          {isHomePage ? (
-            <button 
-              className="px-8 py-3 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors shadow-md hover:shadow-lg"
-              onClick={handleTryItNow}
-            >
-              {t('tryItNow')}
-            </button>
-          ) : (
-            <Link 
-              to="/#fact-checker"
-              className="inline-block px-8 py-3 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors shadow-md hover:shadow-lg"
-            >
-              {t('tryItNow')}
-            </Link>
-          )}
-        </motion.div>
       </div>
-    </section>
+    </div>
   );
 }

@@ -1,129 +1,196 @@
 
 import { useState, useEffect } from 'react';
-import { useLocation, Link } from 'react-router-dom';
-import { Menu, X, Moon, Sun } from 'lucide-react';
-import { useTheme } from '@/contexts/ThemeContext';
-import LanguageSelector from '@/components/LanguageSelector';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Menu, X, Shield } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import ThemeToggle from './ThemeToggle';
+import LanguageSelector from './LanguageSelector';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
 
-const NavBar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const { theme, isDarkMode, toggleTheme } = useTheme();
+export default function NavBar() {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { t } = useLanguage();
   const location = useLocation();
   const isHomePage = location.pathname === '/';
   
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
+      setIsScrolled(window.scrollY > 20);
     };
-
+    
     window.addEventListener('scroll', handleScroll);
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const handleNavigation = (sectionId) => {
-    setIsMenuOpen(false);
-    
-    if (isHomePage) {
-      // If already on home page, scroll to the section
-      const element = document.getElementById(sectionId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
+  
+  // Helper to create links that work correctly on any page
+  const getNavHref = (anchor: string) => {
+    if (isHomePage && anchor.startsWith('#')) {
+      return anchor; // On home page, use anchor links directly
+    } else if (anchor.startsWith('#')) {
+      return `/${anchor}`; // On other pages, navigate to home + anchor
     }
+    return anchor; // For non-anchor links
   };
 
-  const navItems = [
-    { name: t('home'), path: '/' },
-    { name: t('howItWorks'), path: isHomePage ? '#how-it-works' : '/#how-it-works' },
-    { name: t('factChecker'), path: isHomePage ? '#fact-checker' : '/#fact-checker' },
-    { name: t('pricing'), path: '/pricing' },
-    { name: t('documentation'), path: '/documentation' },
-    { name: t('about'), path: '/about' },
-    { name: t('faq'), path: '/faq' }
+  const navLinks = [
+    { name: t('home'), href: isHomePage ? '#' : '/' },
+    { name: t('features'), href: getNavHref('#features') },
+    { name: t('howItWorks'), href: getNavHref('#how-it-works') },
+    { name: t('tryIt'), href: getNavHref('#fact-checker') },
   ];
 
+  const handleGetStarted = () => {
+    // If we're on the home page, scroll to the fact-checker section
+    if (isHomePage) {
+      const factCheckerSection = document.getElementById('fact-checker');
+      if (factCheckerSection) {
+        factCheckerSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // If not on home page, navigate to the home page fact-checker section
+      window.location.href = '/#fact-checker';
+    }
+  };
+  
   return (
-    <nav className={`fixed top-0 left-0 w-full py-4 px-6 transition-all duration-300 z-50 ${scrolled ? 'bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm shadow-md' : 'bg-transparent'}`}>
-      <div className="container mx-auto flex items-center justify-between">
-        <div className="flex items-center">
-          <Link to="/" className="flex items-center text-xl font-semibold">
-            <img src="/logo.svg" alt="TruthGuard Logo" className="h-8 w-auto mr-2" />
-            TruthGuard
-          </Link>
-        </div>
-
-        <div className="hidden lg:flex items-center space-x-6">
-          {navItems.map((item) => (
-            <Link
-              key={item.name}
-              to={item.path}
-              className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors duration-200"
-              onClick={() => handleNavigation(item.path.startsWith('#') ? item.path.substring(1) : '')}
+    <header
+      className={cn(
+        'fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-4 px-6 md:px-10',
+        isScrolled 
+          ? 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg shadow-md' 
+          : 'bg-transparent'
+      )}
+    >
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex items-center gap-2"
+        >
+          {isHomePage ? (
+            <a href="#" className="flex items-center gap-2">
+              <Shield className="h-8 w-8 text-primary" />
+              <span className="font-bold text-xl">TruthGuard</span>
+            </a>
+          ) : (
+            <RouterLink to="/" className="flex items-center gap-2">
+              <Shield className="h-8 w-8 text-primary" />
+              <span className="font-bold text-xl">TruthGuard</span>
+            </RouterLink>
+          )}
+        </motion.div>
+        
+        <nav className="hidden md:flex items-center gap-8">
+          {navLinks.map((link, i) => (
+            <motion.div
+              key={link.name}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 * i }}
+              className="text-sm font-medium"
             >
-              {item.name}
-            </Link>
+              {link.href.startsWith('#') && isHomePage ? (
+                <a 
+                  href={link.href}
+                  className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors"
+                >
+                  {link.name}
+                </a>
+              ) : (
+                <RouterLink 
+                  to={link.href}
+                  className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors"
+                >
+                  {link.name}
+                </RouterLink>
+              )}
+            </motion.div>
           ))}
+        </nav>
+        
+        <div className="flex items-center gap-2">
           <LanguageSelector />
-          <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
-            {isDarkMode ? <Sun className="h-5 w-5 text-gray-700 dark:text-gray-300" /> : <Moon className="h-5 w-5 text-gray-700 dark:text-gray-300" />}
-          </button>
-        </div>
-
-        <div className="lg:hidden">
-          <button onClick={toggleMenu} className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors duration-200">
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
+          <ThemeToggle />
+          
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="ml-2"
+          >
+            <Button
+              variant="default"
+              size="sm"
+              className="hidden md:flex"
+              onClick={handleGetStarted}
+            >
+              {t('getStarted')}
+            </Button>
+          </motion.div>
+          
+          <motion.button
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="md:hidden text-gray-700 dark:text-gray-300"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </motion.button>
         </div>
       </div>
-
+      
       {/* Mobile Menu */}
-      <div className={`lg:hidden fixed top-0 right-0 w-64 h-full bg-white dark:bg-gray-900 shadow-xl transform ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out z-50`}>
-        <div className="flex items-center justify-between p-4">
-          <Link to="/" className="flex items-center text-lg font-semibold">
-            <img src="/logo.svg" alt="TruthGuard Logo" className="h-6 w-auto mr-2" />
-            TruthGuard
-          </Link>
-          <button onClick={toggleMenu} className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors duration-200">
-            <X className="h-6 w-6" />
-          </button>
-        </div>
-        <div className="flex flex-col p-4 space-y-4">
-          {navItems.map((item) => (
-            <Link
-              key={item.name}
-              to={item.path}
-              className="block text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors duration-200 py-2"
-              onClick={() => {
-                handleNavigation(item.path.startsWith('#') ? item.path.substring(1) : '');
-                toggleMenu(); // Close the menu after navigation
-              }}
-            >
-              {item.name}
-            </Link>
-          ))}
-          <LanguageSelector />
-          <button onClick={toggleTheme} className="flex items-center justify-center p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
-            {isDarkMode ? <Sun className="h-5 w-5 text-gray-700 dark:text-gray-300" /> : <Moon className="h-5 w-5 text-gray-700 dark:text-gray-300" />}
-            <span className="ml-2">{isDarkMode ? t('lightMode') : t('darkMode')}</span>
-          </button>
-        </div>
-      </div>
-    </nav>
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="md:hidden bg-white dark:bg-gray-900 overflow-hidden"
+          >
+            <div className="px-6 py-4 space-y-4 flex flex-col">
+              {navLinks.map((link) => (
+                <div key={link.name}>
+                  {link.href.startsWith('#') && isHomePage ? (
+                    <a
+                      href={link.href}
+                      className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary py-2 transition-colors block"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {link.name}
+                    </a>
+                  ) : (
+                    <RouterLink
+                      to={link.href}
+                      className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary py-2 transition-colors block"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {link.name}
+                    </RouterLink>
+                  )}
+                </div>
+              ))}
+              <Button 
+                variant="default" 
+                size="sm" 
+                className="mt-2 w-full"
+                onClick={() => {
+                  handleGetStarted();
+                  setMobileMenuOpen(false);
+                }}
+              >
+                {t('getStarted')}
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </header>
   );
-};
-
-export default NavBar;
+}

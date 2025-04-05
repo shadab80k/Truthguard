@@ -1,64 +1,52 @@
 
-import { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ThemeProvider } from './contexts/ThemeContext';
-import { LanguageProvider } from './contexts/LanguageContext';
-import { Toaster } from './components/ui/toaster';
-import { Toaster as SonnerToaster } from './components/ui/sonner';
-import Index from './pages/Index';
-import Pricing from './pages/Pricing';
-import Documentation from './pages/Documentation';
-import About from './pages/About';
-import Blog from './pages/Blog';
-import FAQ from './pages/FAQ';
-import Privacy from './pages/Privacy';
-import Terms from './pages/Terms';
-import Careers from './pages/Careers';
-import NotFound from './pages/NotFound';
-import './App.css';
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Index from "./pages/Index";
+import NotFound from "./pages/NotFound";
+import { ThemeProvider } from "./contexts/ThemeContext";
+import { LanguageProvider } from "./contexts/LanguageContext";
+import Pricing from "./pages/Pricing";
+import Documentation from "./pages/Documentation";
+import API from "./pages/API";
+import Blog from "./pages/Blog";
+import FAQ from "./pages/FAQ";
+import About from "./pages/About";
+import Careers from "./pages/Careers";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 
-function App() {
-  useEffect(() => {
-    // Parse query parameters for any UTM tags or referral codes
-    const queryParams = new URLSearchParams(window.location.search);
-    const utmSource = queryParams.get('utm_source');
-    const utmMedium = queryParams.get('utm_medium');
-    const utmCampaign = queryParams.get('utm_campaign');
-    const referralCode = queryParams.get('ref');
-    
-    // Log or store UTM parameters if present
-    if (utmSource || utmMedium || utmCampaign || referralCode) {
-      console.log('Marketing params:', { utmSource, utmMedium, utmCampaign, referralCode });
-      // Store in localStorage or analytics system
-      localStorage.setItem('marketing_data', JSON.stringify({ 
-        utmSource, utmMedium, utmCampaign, referralCode, 
-        timestamp: new Date().toISOString() 
-      }));
-    }
-  }, []);
+const queryClient = new QueryClient();
 
-  return (
+const App = () => (
+  <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <LanguageProvider>
-        <Router>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/documentation" element={<Documentation />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/careers" element={<Careers />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+        <TooltipProvider>
           <Toaster />
-          <SonnerToaster position="top-right" />
-        </Router>
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/documentation" element={<Documentation />} />
+              <Route path="/api" element={<API />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/faqs" element={<FAQ />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/careers" element={<Careers />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/terms" element={<Terms />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
       </LanguageProvider>
     </ThemeProvider>
-  );
-}
+  </QueryClientProvider>
+);
 
 export default App;
