@@ -5,11 +5,13 @@ type Theme = "light" | "dark";
 
 interface ThemeContextType {
   theme: Theme;
+  isDarkMode: boolean; // Add the isDarkMode property
   toggleTheme: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextType>({
   theme: "light",
+  isDarkMode: false, // Add initial value for isDarkMode
   toggleTheme: () => {},
 });
 
@@ -20,6 +22,9 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     const savedTheme = localStorage.getItem("theme") as Theme;
     return savedTheme || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
   });
+
+  // Calculate isDarkMode based on theme
+  const isDarkMode = theme === "dark";
 
   useEffect(() => {
     if (theme === "dark") {
@@ -35,7 +40,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, isDarkMode, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
