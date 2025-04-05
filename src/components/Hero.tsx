@@ -107,7 +107,7 @@ export default function Hero() {
               <Button 
                 variant="outline" 
                 className="px-8 py-6 text-base font-medium border-2 hover:-translate-y-1 transition-all duration-300"
-                onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
               >
                 Learn More
               </Button>

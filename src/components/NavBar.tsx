@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import ThemeToggle from './ThemeToggle';
 import LanguageSelector from './LanguageSelector';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { Link as RouterLink } from 'react-router-dom';
 
 export default function NavBar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -28,6 +29,17 @@ export default function NavBar() {
     { name: t('howItWorks'), href: '#how-it-works' },
     { name: t('tryIt'), href: '#fact-checker' },
   ];
+
+  const handleGetStarted = () => {
+    // If we're on the home page, scroll to the fact-checker section
+    const factCheckerSection = document.getElementById('fact-checker');
+    if (factCheckerSection) {
+      factCheckerSection.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      // If not on home page, navigate to the pricing page
+      window.location.href = '/pricing';
+    }
+  };
   
   return (
     <header
@@ -79,6 +91,7 @@ export default function NavBar() {
               variant="default"
               size="sm"
               className="hidden md:flex"
+              onClick={handleGetStarted}
             >
               {t('getStarted')}
             </Button>
@@ -117,7 +130,15 @@ export default function NavBar() {
                   {link.name}
                 </a>
               ))}
-              <Button variant="default" size="sm" className="mt-2 w-full">
+              <Button 
+                variant="default" 
+                size="sm" 
+                className="mt-2 w-full"
+                onClick={() => {
+                  handleGetStarted();
+                  setMobileMenuOpen(false);
+                }}
+              >
                 {t('getStarted')}
               </Button>
             </div>
