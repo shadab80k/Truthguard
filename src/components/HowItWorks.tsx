@@ -28,9 +28,9 @@ export default function HowItWorks() {
   ];
 
   return (
-    <section id="how-it-works" className="py-20 px-6 bg-white dark:bg-gray-950">
+    <section id="how-it-works" className="py-20 px-6 bg-white dark:bg-gray-950 mt-16">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
+        <div className="text-center mb-16 pt-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -84,7 +84,7 @@ export default function HowItWorks() {
         >
           <button 
             className="px-8 py-3 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors shadow-md hover:shadow-lg"
-            onClick={() => document.getElementById('fact-checker')?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={() => document.getElementById('fact-checker')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
           >
             Try It Now
           </button>

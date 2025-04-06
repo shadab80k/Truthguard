@@ -13,8 +13,11 @@ const Index = () => {
   useEffect(() => {
     const handleAnchorClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (target.tagName === 'A' && target.getAttribute('href')?.startsWith('#')) {
-        const id = target.getAttribute('href')?.substring(1);
+      // Check if clicked element is an anchor or has an anchor parent
+      const anchor = target.tagName === 'A' ? target : target.closest('a');
+      
+      if (anchor && anchor.getAttribute('href')?.startsWith('#')) {
+        const id = anchor.getAttribute('href')?.substring(1);
         const element = document.getElementById(id || '');
         
         if (element) {
@@ -25,10 +28,10 @@ const Index = () => {
           const navbarHeight = navbar ? navbar.offsetHeight : 0;
           
           // Add extra padding to ensure content isn't hidden directly under the navbar
-          const extraPadding = 20; // 20px of extra padding
+          const extraPadding = 50; // Increased padding for better visibility
           
           const elementPosition = element.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - navbarHeight - extraPadding;
+          const offsetPosition = elementPosition + window.scrollY - navbarHeight - extraPadding;
           
           window.scrollTo({
             top: offsetPosition,

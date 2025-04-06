@@ -45,6 +45,29 @@ export default function Footer() {
   const isInternalLink = (href: string) => {
     return href.startsWith('#') || href.startsWith('/');
   };
+  
+  // Handle smooth scrolling for anchor links
+  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith('#')) {
+      e.preventDefault();
+      const id = href.substring(1);
+      const element = document.getElementById(id);
+      
+      if (element) {
+        const navbar = document.querySelector('header');
+        const navbarHeight = navbar ? navbar.offsetHeight : 0;
+        const extraPadding = 50;
+        
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.scrollY - navbarHeight - extraPadding;
+        
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
+    }
+  };
 
   return (
     <footer className="bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800">
@@ -111,6 +134,7 @@ export default function Footer() {
                         <a 
                           href={link.href} 
                           className="text-muted-foreground hover:text-primary transition-colors"
+                          onClick={(e) => handleAnchorClick(e, link.href)}
                         >
                           {link.name}
                         </a>
