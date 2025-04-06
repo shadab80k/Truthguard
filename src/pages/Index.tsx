@@ -1,6 +1,7 @@
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import Hero from '@/components/Hero';
 import Features from '@/components/Features';
@@ -9,6 +10,41 @@ import FactChecker from '@/components/FactChecker';
 import Footer from '@/components/Footer';
 
 const Index = () => {
+  const location = useLocation();
+  const initialRender = useRef(true);
+
+  // Handle hash navigation when coming from another page
+  useEffect(() => {
+    if (initialRender.current) {
+      initialRender.current = false;
+      
+      // Check if there's a hash in the URL
+      if (location.hash) {
+        // Wait a bit for the components to render
+        setTimeout(() => {
+          const id = location.hash.substring(1);
+          const element = document.getElementById(id);
+          
+          if (element) {
+            const navbar = document.querySelector('header');
+            const navbarHeight = navbar ? navbar.offsetHeight : 0;
+            const extraPadding = 50;
+            
+            const offsetPosition = element.offsetTop - navbarHeight - extraPadding;
+            
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: 'smooth'
+            });
+          }
+        }, 100);
+      } else {
+        // No hash, scroll to top
+        window.scrollTo(0, 0);
+      }
+    }
+  }, [location.hash]);
+
   // Smooth scroll function for anchor links
   useEffect(() => {
     const handleAnchorClick = (e: MouseEvent) => {
@@ -30,8 +66,7 @@ const Index = () => {
           // Add extra padding to ensure content isn't hidden directly under the navbar
           const extraPadding = 50; // Increased padding for better visibility
           
-          const elementPosition = element.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.scrollY - navbarHeight - extraPadding;
+          const offsetPosition = element.offsetTop - navbarHeight - extraPadding;
           
           window.scrollTo({
             top: offsetPosition,

@@ -7,12 +7,15 @@ import { cn } from '@/lib/utils';
 import ThemeToggle from './ThemeToggle';
 import LanguageSelector from './LanguageSelector';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 export default function NavBar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { t } = useLanguage();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
   
   useEffect(() => {
     const handleScroll = () => {
@@ -24,20 +27,77 @@ export default function NavBar() {
   }, []);
   
   const navLinks = [
-    { name: t('home'), href: '#' },
-    { name: t('features'), href: '#features' },
-    { name: t('howItWorks'), href: '#how-it-works' },
-    { name: t('tryIt'), href: '#fact-checker' },
+    { name: t('home'), href: isHomePage ? '#' : '/' },
+    { name: t('features'), href: isHomePage ? '#features' : '/#features' },
+    { name: t('howItWorks'), href: isHomePage ? '#how-it-works' : '/#how-it-works' },
+    { name: t('tryIt'), href: isHomePage ? '#fact-checker' : '/#fact-checker' },
   ];
 
   const handleGetStarted = () => {
     // If we're on the home page, scroll to the fact-checker section
-    const factCheckerSection = document.getElementById('fact-checker');
-    if (factCheckerSection) {
-      factCheckerSection.scrollIntoView({ behavior: 'smooth' });
+    if (isHomePage) {
+      const factCheckerSection = document.getElementById('fact-checker');
+      if (factCheckerSection) {
+        factCheckerSection.scrollIntoView({ behavior: 'smooth' });
+      }
     } else {
       // If not on home page, navigate to the pricing page
-      window.location.href = '/pricing';
+      navigate('/pricing');
+    }
+  };
+  
+  const handleNavLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    
+    if (href === '#') {
+      // Handle home link on home page
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (href.startsWith('/#')) {
+      // Handle anchor links from other pages to home page sections
+      navigate('/');
+      // Need to wait for navigation to complete before scrolling
+      setTimeout(() => {
+        const id = href.substring(2); // Remove the "/#"
+        const element = document.getElementById(id);
+        if (element) {
+          const navbar = document.querySelector('header');
+          const navbarHeight = navbar ? navbar.offsetHeight : 0;
+          const extraPadding = 50;
+          
+          const offsetPosition = element.offsetTop - navbarHeight - extraPadding;
+          
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
+      }, 100);
+    } else if (href.startsWith('#')) {
+      // Handle anchor links within same page
+      const id = href.substring(1);
+      const element = document.getElementById(id);
+      
+      if (element) {
+        const navbar = document.querySelector('header');
+        const navbarHeight = navbar ? navbar.offsetHeight : 0;
+        const extraPadding = 50;
+        
+        const offsetPosition = element.offsetTop - navbarHeight - extraPadding;
+        
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
+    } else {
+      // Regular link to another page
+      navigate(href);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    // Close mobile menu if open
+    if (mobileMenuOpen) {
+      setMobileMenuOpen(false);
     }
   };
   
@@ -52,7 +112,12 @@ export default function NavBar() {
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <motion.a 
-          href="#"
+          href="/"
+          onClick={(e) => {
+            e.preventDefault();
+            navigate('/');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
@@ -67,6 +132,7 @@ export default function NavBar() {
             <motion.a
               key={link.name}
               href={link.href}
+              onClick={(e) => handleNavLinkClick(e, link.href)}
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 * i }}
@@ -125,7 +191,7 @@ export default function NavBar() {
                   key={link.name}
                   href={link.href}
                   className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary py-2 transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={(e) => handleNavLinkClick(e, link.href)}
                 >
                   {link.name}
                 </a>
