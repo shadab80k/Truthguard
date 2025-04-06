@@ -1,9 +1,11 @@
 
 import { Shield, Twitter, Github, Linkedin, Mail } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Footer() {
+  const navigate = useNavigate();
+  
   const footerLinks = [
     {
       title: "Product",
@@ -46,9 +48,10 @@ export default function Footer() {
     return href.startsWith('#') || href.startsWith('/');
   };
   
-  // Handle smooth scrolling for anchor links
-  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+  // Handle navigation and smooth scrolling
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     if (href.startsWith('#')) {
+      // Handle anchor links within the same page
       e.preventDefault();
       const id = href.substring(1);
       const element = document.getElementById(id);
@@ -66,6 +69,15 @@ export default function Footer() {
           behavior: 'smooth'
         });
       }
+    } else if (href.startsWith('/')) {
+      // Handle navigation to other pages
+      e.preventDefault();
+      navigate(href);
+      // Scroll to top after navigation
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
     }
   };
 
@@ -130,22 +142,13 @@ export default function Footer() {
                 {group.links.map((link, j) => (
                   <li key={j}>
                     {isInternalLink(link.href) ? (
-                      link.href.startsWith('#') ? (
-                        <a 
-                          href={link.href} 
-                          className="text-muted-foreground hover:text-primary transition-colors"
-                          onClick={(e) => handleAnchorClick(e, link.href)}
-                        >
-                          {link.name}
-                        </a>
-                      ) : (
-                        <Link 
-                          to={link.href} 
-                          className="text-muted-foreground hover:text-primary transition-colors"
-                        >
-                          {link.name}
-                        </Link>
-                      )
+                      <a 
+                        href={link.href} 
+                        className="text-muted-foreground hover:text-primary transition-colors"
+                        onClick={(e) => handleLinkClick(e, link.href)}
+                      >
+                        {link.name}
+                      </a>
                     ) : (
                       <a 
                         href={link.href} 
@@ -174,15 +177,27 @@ export default function Footer() {
             © {new Date().getFullYear()} TruthGuard. All rights reserved.
           </p>
           <div className="flex gap-6">
-            <Link to="/privacy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            <a 
+              href="/privacy" 
+              className="text-sm text-muted-foreground hover:text-primary transition-colors"
+              onClick={(e) => handleLinkClick(e, '/privacy')}
+            >
               Privacy Policy
-            </Link>
-            <Link to="/terms" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            </a>
+            <a 
+              href="/terms" 
+              className="text-sm text-muted-foreground hover:text-primary transition-colors"
+              onClick={(e) => handleLinkClick(e, '/terms')}
+            >
               Terms of Service
-            </Link>
-            <Link to="/cookie-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            </a>
+            <a 
+              href="/cookie-policy" 
+              className="text-sm text-muted-foreground hover:text-primary transition-colors"
+              onClick={(e) => handleLinkClick(e, '/cookie-policy')}
+            >
               Cookie Policy
-            </Link>
+            </a>
           </div>
         </motion.div>
       </div>

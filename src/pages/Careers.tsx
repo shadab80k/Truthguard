@@ -1,11 +1,15 @@
-
-import { motion } from 'framer-motion';
+import { motion, useScroll } from 'framer-motion';
 import { Briefcase, Award, Users, Coffee, MapPin, Clock, Zap, Heart } from 'lucide-react';
+import { useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 
 const CareersPage = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const openPositions = [
     {
       title: "Senior Machine Learning Engineer",
@@ -71,7 +75,7 @@ const CareersPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <NavBar />
-      <main className="flex-grow">
+      <main className="flex-grow pt-20">
         <section className="py-16 px-4 md:py-24 bg-gray-50 dark:bg-gray-900">
           <div className="max-w-7xl mx-auto">
             <motion.div 
