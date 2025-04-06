@@ -24,8 +24,11 @@ const Index = () => {
           const navbar = document.querySelector('header');
           const navbarHeight = navbar ? navbar.offsetHeight : 0;
           
+          // Add extra padding to ensure content isn't hidden directly under the navbar
+          const extraPadding = 20; // 20px of extra padding
+          
           const elementPosition = element.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - navbarHeight;
+          const offsetPosition = elementPosition + window.pageYOffset - navbarHeight - extraPadding;
           
           window.scrollTo({
             top: offsetPosition,
