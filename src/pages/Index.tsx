@@ -19,7 +19,16 @@ const Index = () => {
         
         if (element) {
           e.preventDefault();
-          element.scrollIntoView({
+          
+          // Get the navbar height to offset the scroll position
+          const navbar = document.querySelector('header');
+          const navbarHeight = navbar ? navbar.offsetHeight : 0;
+          
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - navbarHeight;
+          
+          window.scrollTo({
+            top: offsetPosition,
             behavior: 'smooth'
           });
         }
