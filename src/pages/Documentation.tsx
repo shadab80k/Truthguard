@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { FileText, Bookmark, Search, BookOpen, Code, HelpCircle } from 'lucide-react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
+import { Card, CardContent } from '@/components/ui/card';
 
 const DocumentationPage = () => {
   const categories = [
@@ -51,7 +52,8 @@ const DocumentationPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <NavBar />
-      <main className="flex-grow">
+      <main className="flex-grow pt-24">
+        {/* Header Section */}
         <section className="py-12 px-4 md:py-16 bg-gray-50 dark:bg-gray-900">
           <div className="max-w-7xl mx-auto">
             <motion.div 
@@ -81,6 +83,7 @@ const DocumentationPage = () => {
           </div>
         </section>
         
+        {/* Categories Section */}
         <section className="py-12 px-4">
           <div className="max-w-7xl mx-auto">
             <div className="grid gap-8 md:grid-cols-2">
@@ -90,38 +93,46 @@ const DocumentationPage = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="border rounded-lg p-6 dark:border-gray-700"
                 >
-                  <div className="flex items-center mb-4">
-                    <div className="mr-3 text-primary">{category.icon}</div>
-                    <h2 className="text-xl font-bold">{category.title}</h2>
-                  </div>
-                  <p className="mb-4 text-muted-foreground">{category.description}</p>
-                  <ul className="space-y-2">
-                    {category.links.map((link, j) => (
-                      <li key={j}>
-                        <a 
-                          href={link.href} 
-                          className="text-primary hover:underline flex items-center"
-                        >
-                          <span>{link.title}</span>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
+                  <Card className="h-full">
+                    <CardContent className="p-6">
+                      <div className="flex items-center mb-4">
+                        <div className="mr-3 text-primary">{category.icon}</div>
+                        <h2 className="text-xl font-bold">{category.title}</h2>
+                      </div>
+                      <p className="mb-4 text-muted-foreground">{category.description}</p>
+                      <ul className="space-y-3">
+                        {category.links.map((link, j) => (
+                          <li key={j}>
+                            <a 
+                              href={link.href} 
+                              className="text-primary hover:underline flex items-center"
+                            >
+                              <span>{link.title}</span>
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
                 </motion.div>
               ))}
             </div>
             
-            <div className="mt-12 p-6 border rounded-lg text-center dark:border-gray-700">
-              <div className="flex justify-center mb-4">
-                <HelpCircle className="h-8 w-8 text-primary" />
-              </div>
-              <h2 className="text-2xl font-bold mb-2">Need more help?</h2>
-              <p className="text-muted-foreground mb-4">Our support team is here to assist you with any questions.</p>
-              <button className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 transition-colors">
-                Contact Support
-              </button>
+            {/* Help Section */}
+            <div className="mt-12">
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <div className="flex justify-center mb-4">
+                    <HelpCircle className="h-8 w-8 text-primary" />
+                  </div>
+                  <h2 className="text-2xl font-bold mb-2">Need more help?</h2>
+                  <p className="text-muted-foreground mb-4">Our support team is here to assist you with any questions.</p>
+                  <button className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 transition-colors">
+                    Contact Support
+                  </button>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </section>
