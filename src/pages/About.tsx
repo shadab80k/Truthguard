@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Shield, Users, Award, Target, Clock, Check } from 'lucide-react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const AboutPage = () => {
   const team = [
@@ -25,10 +26,11 @@ const AboutPage = () => {
       image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
     },
     {
-      name: "David Park",
-      role: "Lead Developer",
-      bio: "Full-stack engineer specializing in secure applications.",
-      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+      name: "Mohd Shadab",
+      role: "UI/UX Designer",
+      bio: "Generative & Agentic AI Enthusiast | Expert in Digital Design | Student at IIT Madras BS Degree",
+      description: "Passionate about creating intuitive user experiences that bridge technology and human needs. Specializes in crafting digital interfaces that enhance information accessibility while maintaining visual appeal. Brings innovative design thinking to combat misinformation through thoughtful UX/UI solutions.",
+      image: "/lovable-uploads/dd93cde0-897e-45dc-802d-74e7cff9db5b.png"
     }
   ];
 
@@ -154,7 +156,7 @@ const AboutPage = () => {
               transition={{ duration: 0.5 }}
               className="text-center mb-12"
             >
-              <h2 className="text-3xl font-bold mb-4">Our Team</h2>
+              <h2 className="text-3xl font-bold mb-4">Behind TruthGuard</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
                 Meet the passionate people behind TruthGuard.
               </p>
@@ -169,16 +171,26 @@ const AboutPage = () => {
                   transition={{ duration: 0.5, delay: i * 0.1 }}
                   className="text-center"
                 >
-                  <div className="mb-4">
-                    <img 
-                      src={member.image} 
-                      alt={member.name} 
-                      className="w-32 h-32 rounded-full mx-auto object-cover"
-                    />
+                  <div className="mb-4 flex justify-center">
+                    {member.name === "Mohd Shadab" ? (
+                      <Avatar className="w-32 h-32">
+                        <AvatarImage src={member.image} alt={member.name} className="object-cover" />
+                        <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                    ) : (
+                      <img 
+                        src={member.image} 
+                        alt={member.name} 
+                        className="w-32 h-32 rounded-full mx-auto object-cover"
+                      />
+                    )}
                   </div>
                   <h3 className="text-xl font-bold">{member.name}</h3>
                   <p className="text-primary font-medium mb-2">{member.role}</p>
                   <p className="text-muted-foreground">{member.bio}</p>
+                  {member.description && (
+                    <p className="text-muted-foreground mt-2 text-sm px-4">{member.description}</p>
+                  )}
                 </motion.div>
               ))}
             </div>
