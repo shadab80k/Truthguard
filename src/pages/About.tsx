@@ -8,24 +8,6 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 const AboutPage = () => {
   const team = [
     {
-      name: "Sarah Chen",
-      role: "CEO & Co-Founder",
-      bio: "Former journalist with a passion for truth in media.",
-      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-    },
-    {
-      name: "Michael Rodriguez",
-      role: "CTO & Co-Founder",
-      bio: "AI researcher with 15+ years experience in NLP and ML.",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-    },
-    {
-      name: "Aisha Johnson",
-      role: "Head of Research",
-      bio: "PhD in Information Science, expert in digital literacy.",
-      image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-    },
-    {
       name: "Mohd Shadab",
       role: "UI/UX Designer",
       bio: "Generative & Agentic AI Enthusiast | Expert in Digital Design | Student at IIT Madras BS Degree",
@@ -162,35 +144,24 @@ const AboutPage = () => {
               </p>
             </motion.div>
             
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="flex justify-center">
               {team.map((member, i) => (
                 <motion.div
                   key={member.name}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="text-center"
+                  className="text-center max-w-md"
                 >
                   <div className="mb-4 flex justify-center">
-                    {member.name === "Mohd Shadab" ? (
-                      <Avatar className="w-32 h-32">
-                        <AvatarImage src={member.image} alt={member.name} className="object-cover" />
-                        <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                    ) : (
-                      <img 
-                        src={member.image} 
-                        alt={member.name} 
-                        className="w-32 h-32 rounded-full mx-auto object-cover"
-                      />
-                    )}
+                    <Avatar className="w-32 h-32">
+                      <AvatarImage src={member.image} alt={member.name} className="object-cover" />
+                      <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
                   </div>
                   <h3 className="text-xl font-bold">{member.name}</h3>
                   <p className="text-primary font-medium mb-2">{member.role}</p>
                   <p className="text-muted-foreground">{member.bio}</p>
-                  {member.description && (
-                    <p className="text-muted-foreground mt-2 text-sm px-4">{member.description}</p>
-                  )}
                 </motion.div>
               ))}
             </div>
