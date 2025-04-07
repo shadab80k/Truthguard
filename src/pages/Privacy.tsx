@@ -1,6 +1,6 @@
 
 import { motion } from 'framer-motion';
-import { Lock, Shield } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 
@@ -29,11 +29,12 @@ const PrivacyPage = () => {
         </section>
         
         <section className="py-8 px-4">
-          <div className="max-w-3xl mx-auto prose dark:prose-invert">
+          <div className="max-w-4xl mx-auto">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
+              className="prose dark:prose-invert max-w-none"
             >
               <h2>Introduction</h2>
               <p>
