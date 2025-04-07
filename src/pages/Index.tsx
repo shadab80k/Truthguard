@@ -37,7 +37,7 @@ const Index = () => {
               behavior: 'smooth'
             });
           }
-        }, 100);
+        }, 200); // Increased timeout for better reliability
       } else {
         // No hash, scroll to top
         window.scrollTo(0, 0);

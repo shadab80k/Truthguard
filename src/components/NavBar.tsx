@@ -43,6 +43,8 @@ export default function NavBar() {
     } else {
       // If not on home page, navigate to the pricing page
       navigate('/pricing');
+      // Ensure scroll to top after navigation
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
   
@@ -92,6 +94,7 @@ export default function NavBar() {
     } else {
       // Regular link to another page
       navigate(href);
+      // Ensure scroll to top after navigation
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     

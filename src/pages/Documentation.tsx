@@ -4,8 +4,14 @@ import { FileText, Bookmark, Search, BookOpen, Code, HelpCircle } from 'lucide-r
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from '@/components/ui/card';
+import { useEffect } from 'react';
 
 const DocumentationPage = () => {
+  // Scroll to top on page load
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const categories = [
     {
       title: 'Getting Started',
