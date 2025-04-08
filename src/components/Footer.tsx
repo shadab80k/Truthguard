@@ -1,10 +1,12 @@
 
 import { Shield, Twitter, Github, Linkedin, Mail } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 export default function Footer() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
   
   const footerLinks = [
     {
@@ -50,28 +52,32 @@ export default function Footer() {
   
   // Handle navigation and smooth scrolling
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    
     if (href.startsWith('#')) {
-      // Handle anchor links within the same page
-      e.preventDefault();
-      const id = href.substring(1);
-      const element = document.getElementById(id);
-      
-      if (element) {
-        const navbar = document.querySelector('header');
-        const navbarHeight = navbar ? navbar.offsetHeight : 0;
-        const extraPadding = 50;
+      // If we're on the home page and clicking an anchor link
+      if (isHomePage) {
+        const id = href.substring(1);
+        const element = document.getElementById(id);
         
-        const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.scrollY - navbarHeight - extraPadding;
-        
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
-        });
+        if (element) {
+          const navbar = document.querySelector('header');
+          const navbarHeight = navbar ? navbar.offsetHeight : 0;
+          const extraPadding = 50;
+          
+          const offsetPosition = element.offsetTop - navbarHeight - extraPadding;
+          
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
+      } else {
+        // If we're not on the home page, navigate to home with hash
+        navigate('/' + href);
       }
     } else if (href.startsWith('/')) {
       // Handle navigation to other pages
-      e.preventDefault();
       navigate(href);
       // Scroll to top after navigation
       window.scrollTo({

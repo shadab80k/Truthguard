@@ -15,33 +15,30 @@ const Index = () => {
 
   // Handle hash navigation when coming from another page
   useEffect(() => {
-    if (initialRender.current) {
-      initialRender.current = false;
-      
-      // Check if there's a hash in the URL
-      if (location.hash) {
-        // Wait a bit for the components to render
-        setTimeout(() => {
-          const id = location.hash.substring(1);
-          const element = document.getElementById(id);
+    // Check if there's a hash in the URL
+    if (location.hash) {
+      // Small delay to ensure components are rendered
+      setTimeout(() => {
+        const id = location.hash.substring(1);
+        const element = document.getElementById(id);
+        
+        if (element) {
+          const navbar = document.querySelector('header');
+          const navbarHeight = navbar ? navbar.offsetHeight : 0;
+          const extraPadding = 50;
           
-          if (element) {
-            const navbar = document.querySelector('header');
-            const navbarHeight = navbar ? navbar.offsetHeight : 0;
-            const extraPadding = 50;
-            
-            const offsetPosition = element.offsetTop - navbarHeight - extraPadding;
-            
-            window.scrollTo({
-              top: offsetPosition,
-              behavior: 'smooth'
-            });
-          }
-        }, 200); // Increased timeout for better reliability
-      } else {
-        // No hash, scroll to top
-        window.scrollTo(0, 0);
-      }
+          const offsetPosition = element.offsetTop - navbarHeight - extraPadding;
+          
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
+      }, 300); // Increased timeout for better reliability
+    } else if (initialRender.current) {
+      // No hash, scroll to top on initial render
+      window.scrollTo(0, 0);
+      initialRender.current = false;
     }
   }, [location.hash]);
 
