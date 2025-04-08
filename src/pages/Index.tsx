@@ -81,7 +81,7 @@ const Index = () => {
     <AnimatePresence>
       <div className="min-h-screen flex flex-col">
         <NavBar />
-        <main className="flex-grow">
+        <main className="flex-grow pt-16">
           <Hero />
           <Features />
           <HowItWorks />

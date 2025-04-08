@@ -8,7 +8,7 @@ const TermsPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <NavBar />
-      <main className="flex-grow">
+      <main className="flex-grow pt-24">
         <section className="py-12 px-4 md:py-16 bg-gray-50 dark:bg-gray-900">
           <div className="max-w-7xl mx-auto">
             <motion.div 
@@ -28,7 +28,7 @@ const TermsPage = () => {
           </div>
         </section>
         
-        <section className="py-8 px-4">
+        <section className="py-8 px-4 md:px-8 lg:px-12">
           <div className="max-w-4xl mx-auto">
             <motion.div
               initial={{ opacity: 0 }}
