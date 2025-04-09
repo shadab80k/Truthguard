@@ -1,4 +1,3 @@
-
 import { motion } from 'framer-motion';
 import { Shield, Users, Award, Target, Clock, Check } from 'lucide-react';
 import NavBar from '@/components/NavBar';
@@ -72,13 +71,14 @@ const AboutPage = () => {
               >
                 <h2 className="text-3xl font-bold mb-4">Our Mission</h2>
                 <p className="text-muted-foreground mb-4">
-                  At TruthGuard, we're committed to combating the spread of misinformation by providing powerful, accessible fact-checking tools that help people make informed decisions based on accurate information.
+                  At TruthGuard, our mission is to empower people with instant, trustworthy, and AI-verified information in a world overwhelmed by misinformation.
+                  We aim to create a safer digital ecosystem where truth is accessible, bias is challenged, and public trust is restored — one fact at a time.
                 </p>
                 <p className="text-muted-foreground mb-4">
-                  Founded in 2023, our team of journalists, data scientists, and technologists work together to develop cutting-edge AI that can analyze and verify information against trusted sources.
+                  By harnessing the power of AI-driven semantic analysis, real-time verification, and multilingual support, we're building a platform that serves journalists, researchers, and everyday users alike — enabling them to make informed decisions with confidence.
                 </p>
                 <p className="text-muted-foreground">
-                  We believe that access to reliable information is essential for healthy public discourse and a functioning democracy. Our vision is a world where everyone can easily distinguish fact from fiction.
+                  We believe that the future of information is transparent, intelligent, and user-first — and we're here to lead that change.
                 </p>
               </motion.div>
               
