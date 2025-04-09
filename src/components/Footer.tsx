@@ -1,4 +1,3 @@
-
 import { Shield, Twitter, Github, Linkedin, Mail } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
@@ -39,23 +38,20 @@ export default function Footer() {
   ];
 
   const socialLinks = [
-    { icon: <Twitter className="h-5 w-5" />, href: "https://twitter.com", label: "Twitter" },
-    { icon: <Github className="h-5 w-5" />, href: "https://github.com", label: "GitHub" },
-    { icon: <Linkedin className="h-5 w-5" />, href: "https://linkedin.com", label: "LinkedIn" },
-    { icon: <Mail className="h-5 w-5" />, href: "mailto:contact@truthguard.com", label: "Email" },
+    { icon: <Twitter className="h-5 w-5" />, href: "https://x.com/shadab_80k", label: "Twitter" },
+    { icon: <Github className="h-5 w-5" />, href: "https://github.com/shadab80k", label: "GitHub" },
+    { icon: <Linkedin className="h-5 w-5" />, href: "https://linkedin.com/in/shadab80k", label: "LinkedIn" },
+    { icon: <Mail className="h-5 w-5" />, href: "mailto:mohdshadab4549@gmail.com", label: "Email" },
   ];
 
-  // Helper function to determine if a link is internal or external
   const isInternalLink = (href: string) => {
     return href.startsWith('#') || href.startsWith('/');
   };
   
-  // Handle navigation and smooth scrolling
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     
     if (href.startsWith('#')) {
-      // If we're on the home page and clicking an anchor link
       if (isHomePage) {
         const id = href.substring(1);
         const element = document.getElementById(id);
@@ -73,13 +69,10 @@ export default function Footer() {
           });
         }
       } else {
-        // If we're not on the home page, navigate to home with hash
         navigate('/' + href);
       }
     } else if (href.startsWith('/')) {
-      // Handle navigation to other pages
       navigate(href);
-      // Scroll to top after navigation
       window.scrollTo({
         top: 0,
         behavior: 'smooth'
