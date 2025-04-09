@@ -1,4 +1,4 @@
-import { Shield, Twitter, Github, Linkedin, Mail } from 'lucide-react';
+import { Shield, Twitter, Github, Linkedin } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 
@@ -41,7 +41,6 @@ export default function Footer() {
     { icon: <Twitter className="h-5 w-5" />, href: "https://x.com/shadab_80k", label: "Twitter" },
     { icon: <Github className="h-5 w-5" />, href: "https://github.com/shadab80k", label: "GitHub" },
     { icon: <Linkedin className="h-5 w-5" />, href: "https://linkedin.com/in/shadab80k", label: "LinkedIn" },
-    { icon: <Mail className="h-5 w-5" />, href: "mailto:mohdshadab4549@gmail.com", label: "Email" },
   ];
 
   const isInternalLink = (href: string) => {
