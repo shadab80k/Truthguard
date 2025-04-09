@@ -20,9 +20,9 @@ const TermsPage = () => {
               <div className="flex justify-center mb-4">
                 <FileText className="h-12 w-12 text-primary" />
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">Terms of Service</h1>
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">📜 Terms of Use – TruthGuard</h1>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Last updated: April 1, 2025
+                Effective Date: 10 Apr 2025
               </p>
             </motion.div>
           </div>
@@ -36,83 +36,102 @@ const TermsPage = () => {
               transition={{ duration: 0.5 }}
               className="prose dark:prose-invert max-w-none"
             >
-              <h2>Introduction</h2>
               <p>
-                Welcome to TruthGuard. Please read these Terms of Service ("Terms") carefully as they contain important information about your legal rights, remedies, and obligations. By accessing or using TruthGuard's website or services, you agree to comply with and be bound by these Terms.
+                By accessing or using TruthGuard, you agree to be bound by these Terms of Use. If you do not agree with any part of these terms, please do not use our services.
               </p>
               
-              <h2>Acceptance of Terms</h2>
+              <h2 className="flex items-center gap-2">
+                <span>🔹</span> 1. Overview
+              </h2>
               <p>
-                By accessing or using our services, you agree to be bound by these Terms and our Privacy Policy. If you do not agree to these Terms, you may not access or use our services.
+                TruthGuard is an AI-powered fact-verification platform that allows users to analyze and verify the authenticity of digital content, claims, and media using advanced AI tools such as Google Gemini.
               </p>
               
-              <h2>Description of Service</h2>
-              <p>
-                TruthGuard provides fact-checking services that analyze content against verified sources to determine its accuracy. Our service uses artificial intelligence and a database of verified information to assess the credibility of statements and content.
-              </p>
-              
-              <h2>User Accounts</h2>
-              <p>
-                Some features of our service may require you to create an account. You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. You agree to notify us immediately of any unauthorized use of your account.
-              </p>
-              
-              <h2>User Conduct</h2>
-              <p>You agree not to use our service to:</p>
+              <h2 className="flex items-center gap-2">
+                <span>✅</span> 2. Eligibility
+              </h2>
+              <p>To use TruthGuard, you must:</p>
               <ul>
-                <li>Violate any applicable law or regulation</li>
-                <li>Infringe upon any third-party rights, including intellectual property rights</li>
-                <li>Distribute malware or other harmful code</li>
-                <li>Engage in activities that could disable, overburden, or impair our servers or networks</li>
-                <li>Attempt to gain unauthorized access to our systems or user accounts</li>
+                <li>Be at least 10 years old (or the minimum legal age in your country).</li>
+                <li>Agree to these Terms of Use and our Privacy Policy.</li>
+              </ul>
+              <p>
+                If you're using the platform on behalf of an organization, you confirm that you have the authority to bind the organization to these terms.
+              </p>
+              
+              <h2 className="flex items-center gap-2">
+                <span>🧠</span> 3. User Responsibilities
+              </h2>
+              <p>By using TruthGuard, you agree to:</p>
+              <ul>
+                <li>Provide truthful and lawful content for verification.</li>
+                <li>Avoid submitting malicious, offensive, or illegal claims or links.</li>
+                <li>Not attempt to reverse-engineer, scrape, or misuse the platform or its AI services.</li>
+                <li>Respect intellectual property, including our proprietary algorithms, designs, and data structures.</li>
               </ul>
               
-              <h2>Content Submission</h2>
+              <h2 className="flex items-center gap-2">
+                <span>⚙️</span> 4. Use of AI & Platform Services
+              </h2>
+              <ul>
+                <li>All verification and analysis are conducted using AI algorithms and third-party APIs (e.g., Google Gemini).</li>
+                <li>TruthGuard provides probabilistic assessments based on available data. Final decisions or judgments based on our analysis are at the user's discretion.</li>
+                <li>We do not guarantee 100% accuracy and are not liable for decisions made based on the platform's output.</li>
+              </ul>
+              
+              <h2 className="flex items-center gap-2">
+                <span>💼</span> 5. Account & Access
+              </h2>
+              <ul>
+                <li>Some features may require account registration.</li>
+                <li>You are responsible for maintaining the confidentiality of your login credentials.</li>
+                <li>We reserve the right to suspend or terminate accounts for violating these terms or engaging in suspicious activity.</li>
+              </ul>
+              
+              <h2 className="flex items-center gap-2">
+                <span>💬</span> 6. Community Contributions (Beta)
+              </h2>
+              <p>If you contribute to our upcoming community verification features (e.g., suggesting sources or flagging misinformation), you agree that:</p>
+              <ul>
+                <li>Your contributions may be moderated or removed.</li>
+                <li>You grant us the right to use submitted data to improve platform accuracy.</li>
+              </ul>
+              
+              <h2 className="flex items-center gap-2">
+                <span>🛡️</span> 7. Limitation of Liability
+              </h2>
+              <p>TruthGuard is not responsible for:</p>
+              <ul>
+                <li>Misinformation missed by the platform.</li>
+                <li>Damages caused by reliance on AI-generated analysis.</li>
+                <li>Third-party content or websites linked within the platform.</li>
+              </ul>
+              
+              <h2 className="flex items-center gap-2">
+                <span>🚫</span> 8. Prohibited Activities
+              </h2>
+              <p>You agree not to:</p>
+              <ul>
+                <li>Upload harmful code, malware, or spam.</li>
+                <li>Use bots, automation, or scripts to abuse the platform.</li>
+                <li>Harass, impersonate, or exploit other users.</li>
+                <li>Violate any local, national, or international law.</li>
+              </ul>
+              
+              <h2 className="flex items-center gap-2">
+                <span>🔁</span> 9. Changes to These Terms
+              </h2>
               <p>
-                When you submit content for analysis, you grant us the right to process and analyze that content for the purpose of providing our fact-checking service. You represent and warrant that you have all necessary rights to submit such content and that the content does not violate any third-party rights.
+                We may update these Terms of Use periodically. Any major changes will be communicated via email or platform notification. Continued use of TruthGuard after updates implies acceptance.
               </p>
               
-              <h2>Intellectual Property</h2>
+              <h2 className="flex items-center gap-2">
+                <span>📩</span> 10. Contact
+              </h2>
               <p>
-                Our service, including its content, features, and functionality, are owned by TruthGuard and are protected by copyright, trademark, and other intellectual property laws. You may not reproduce, distribute, modify, create derivative works of, publicly display, or exploit any portion of our service without our prior written consent.
-              </p>
-              
-              <h2>Limitation of Liability</h2>
-              <p>
-                To the maximum extent permitted by law, TruthGuard and its officers, directors, employees, and agents shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including loss of profits, data, or use, arising out of or in connection with these Terms or the use or inability to use our service.
-              </p>
-              
-              <h2>Disclaimer of Warranties</h2>
-              <p>
-                Our service is provided "as is" and "as available" without warranties of any kind, either express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, or non-infringement. We do not warrant that our service will be uninterrupted, secure, or error-free.
-              </p>
-              
-              <h2>Indemnification</h2>
-              <p>
-                You agree to defend, indemnify, and hold harmless TruthGuard and its officers, directors, employees, and agents from and against any claims, liabilities, damages, losses, and expenses arising out of or in any way connected with your use of our service or violation of these Terms.
-              </p>
-              
-              <h2>Modifications to Terms</h2>
-              <p>
-                We reserve the right to modify these Terms at any time. We will notify you of significant changes by posting a notice on our website or sending you an email. Your continued use of our service after such modifications constitutes your acceptance of the modified Terms.
-              </p>
-              
-              <h2>Termination</h2>
-              <p>
-                We may terminate or suspend your access to our service immediately, without prior notice or liability, for any reason, including if you breach these Terms. Upon termination, your right to use our service will cease immediately.
-              </p>
-              
-              <h2>Governing Law</h2>
-              <p>
-                These Terms shall be governed by and construed in accordance with the laws of the State of California, without regard to its conflict of law principles. Any disputes arising out of or relating to these Terms or our service shall be subject to the exclusive jurisdiction of the courts located in San Francisco, California.
-              </p>
-              
-              <h2>Contact Information</h2>
-              <p>
-                If you have any questions about these Terms, please contact us at:
-              </p>
-              <p>
-                Email: legal@truthguard.com<br />
-                Address: 123 Truth Avenue, San Francisco, CA 94105
+                Questions or concerns? Reach out to: <a href="mailto:mohdshadab4549@gmail.com">mohdshadab4549@gmail.com</a><br />
+                Address: Kanpur Uttar Pradesh, India<br />
+                We're here to help.
               </p>
             </motion.div>
           </div>
