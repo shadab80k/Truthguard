@@ -22,7 +22,7 @@ const PrivacyPage = () => {
               </div>
               <h1 className="text-4xl md:text-5xl font-bold mb-4">Privacy Policy</h1>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Last updated: April 1, 2025
+                Effective Date: 10 Apr 2025
               </p>
             </motion.div>
           </div>
@@ -36,84 +36,84 @@ const PrivacyPage = () => {
               transition={{ duration: 0.5 }}
               className="prose dark:prose-invert max-w-none"
             >
-              <h2>Introduction</h2>
-              <p>
-                TruthGuard ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our website and services.
-              </p>
-              <p>
-                Please read this Privacy Policy carefully. By accessing or using our service, you acknowledge that you have read, understood, and agree to be bound by all the terms of this Privacy Policy.
+              <p className="text-lg">
+                At TruthGuard, we value your privacy and are committed to protecting your personal information. This Privacy Policy outlines how we collect, use, store, and protect your data when you use our platform.
               </p>
               
-              <h2>Information We Collect</h2>
-              <h3>Personal Information</h3>
+              <h2 className="flex items-center gap-2">
+                <span>🔍</span> 1. Information We Collect
+              </h2>
               <p>
-                We may collect certain personally identifiable information that can be used to contact or identify you, including but not limited to:
+                We may collect the following types of information when you interact with TruthGuard:
               </p>
               <ul>
-                <li>Name</li>
-                <li>Email address</li>
-                <li>IP address</li>
-                <li>Usage data and analytics</li>
+                <li><strong>Personal Information:</strong> Name, email address, and optional profile details (only if you create an account).</li>
+                <li><strong>Usage Data:</strong> Log data, IP address, browser type, and activity on the platform.</li>
+                <li><strong>Fact-Check Inputs:</strong> Claims or links you submit for verification.</li>
+                <li><strong>Feedback & Preferences:</strong> Responses to surveys, user preferences, and custom settings.</li>
               </ul>
               
-              <h3>Content You Provide</h3>
-              <p>
-                When you use our fact-checking service, we collect and process the content you submit for analysis. This may include texts, statements, articles, or other content you want us to verify.
-              </p>
-              
-              <h2>How We Use Your Information</h2>
-              <p>We use the information we collect for various purposes, including to:</p>
+              <h2 className="flex items-center gap-2">
+                <span>🤖</span> 2. How We Use Your Data
+              </h2>
+              <p>We use your data to:</p>
               <ul>
-                <li>Provide, maintain, and improve our services</li>
-                <li>Process and analyze the content you submit</li>
-                <li>Communicate with you about our service</li>
-                <li>Respond to your inquiries and provide customer support</li>
-                <li>Monitor usage patterns and perform analytics</li>
-                <li>Protect against unauthorized access and legal liability</li>
+                <li>Process and verify fact-check requests using AI.</li>
+                <li>Improve accuracy through analysis of usage trends.</li>
+                <li>Personalize your experience (e.g., language preferences).</li>
+                <li>Provide customer support and respond to inquiries.</li>
+                <li>Enhance platform performance, security, and usability.</li>
               </ul>
               
-              <h2>Data Retention</h2>
-              <p>
-                We retain your personal information only for as long as necessary to fulfill the purposes outlined in this Privacy Policy. We will retain and use your information to the extent necessary to comply with our legal obligations, resolve disputes, and enforce our agreements.
-              </p>
-              
-              <h2>Data Security</h2>
-              <p>
-                We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. However, no method of transmission over the Internet or electronic storage is 100% secure, and we cannot guarantee absolute security.
-              </p>
-              
-              <h2>Third-Party Services</h2>
-              <p>
-                We may employ third-party companies and individuals to facilitate our service, provide the service on our behalf, perform service-related tasks, or assist us in analyzing how our service is used. These third parties have access to your personal information only to perform these tasks on our behalf and are obligated not to disclose or use it for any other purpose.
-              </p>
-              
-              <h2>Children's Privacy</h2>
-              <p>
-                Our service is not intended for use by children under the age of 13. We do not knowingly collect personally identifiable information from children under 13. If we become aware that we have collected personal information from a child under 13, we will take steps to remove that information.
-              </p>
-              
-              <h2>Your Rights</h2>
-              <p>Depending on your location, you may have certain rights regarding your personal information, including:</p>
+              <h2 className="flex items-center gap-2">
+                <span>🛡️</span> 3. Data Security
+              </h2>
               <ul>
-                <li>The right to access the personal information we have about you</li>
-                <li>The right to request correction of inaccurate data</li>
-                <li>The right to request deletion of your data</li>
-                <li>The right to restrict or object to our processing of your data</li>
-                <li>The right to data portability</li>
+                <li>All user data is securely stored and encrypted using industry-standard protocols.</li>
+                <li>We use Supabase for data handling with built-in privacy and access control.</li>
+                <li>Access to your data is strictly limited to authorized personnel only.</li>
               </ul>
               
-              <h2>Changes to This Privacy Policy</h2>
+              <h2 className="flex items-center gap-2">
+                <span>🔁</span> 4. Data Sharing & Third Parties
+              </h2>
+              <ul>
+                <li>We do not sell or rent your personal information to any third party.</li>
+                <li>We may share limited, anonymized data with trusted services (e.g., Google Gemini AI) only to improve fact-checking accuracy.</li>
+                <li>Legal compliance: We may disclose data if required by law or to protect TruthGuard's rights and integrity.</li>
+              </ul>
+              
+              <h2 className="flex items-center gap-2">
+                <span>🌐</span> 5. Multilingual & Global Use
+              </h2>
               <p>
-                We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date. You are advised to review this Privacy Policy periodically for any changes.
+                TruthGuard is used globally. By using our platform, you consent to the transfer and processing of your data in accordance with this policy, wherever our servers or services are located.
               </p>
               
-              <h2>Contact Us</h2>
+              <h2 className="flex items-center gap-2">
+                <span>✅</span> 6. Your Rights
+              </h2>
+              <p>As a user, you have the right to:</p>
+              <ul>
+                <li>Access, update, or delete your personal information.</li>
+                <li>Opt-out of non-essential communications.</li>
+                <li>Request a copy of the data we have on you.</li>
+                <li>Deactivate or permanently delete your account.</li>
+              </ul>
+              
+              <h2 className="flex items-center gap-2">
+                <span>📬</span> 7. Contact Us
+              </h2>
               <p>
-                If you have any questions about this Privacy Policy, please contact us at:
+                Have questions about your privacy?<br />
+                Reach out to us at: <a href="mailto:mohdshadab4549@gmail.com">mohdshadab4549@gmail.com</a> or via the in-app support chat.
               </p>
+              
+              <h2 className="flex items-center gap-2">
+                <span>🔄</span> 8. Updates to This Policy
+              </h2>
               <p>
-                Email: privacy@truthguard.com<br />
-                Address: 123 Truth Avenue, San Francisco, CA 94105
+                We may update this Privacy Policy from time to time. When we do, we'll notify users via email or app notifications. Continued use of TruthGuard after changes implies agreement with the updated terms.
               </p>
             </motion.div>
           </div>
