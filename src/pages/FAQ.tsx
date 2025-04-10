@@ -1,9 +1,16 @@
 
 import { motion } from 'framer-motion';
-import { Plus, Minus, HelpCircle } from 'lucide-react';
+import { Plus, Minus, HelpCircle, Mail, MessageCircle, MapPin, Clock } from 'lucide-react';
 import { useState } from 'react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const FAQPage = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -51,7 +58,7 @@ const FAQPage = () => {
     <div className="min-h-screen flex flex-col">
       <NavBar />
       <main className="flex-grow">
-        <section className="py-16 px-4 md:py-24 bg-gray-50 dark:bg-gray-900">
+        <section className="py-16 px-4 md:py-24 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-950">
           <div className="max-w-7xl mx-auto">
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
@@ -72,46 +79,154 @@ const FAQPage = () => {
         
         <section className="py-12 px-4">
           <div className="max-w-3xl mx-auto">
-            <div className="space-y-6">
+            <Accordion type="single" collapsible className="w-full space-y-4">
               {faqs.map((faq, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: i * 0.1 }}
-                  className="border rounded-lg overflow-hidden dark:border-gray-700"
                 >
-                  <button
-                    onClick={() => toggleFaq(i)}
-                    className="flex justify-between items-center w-full p-4 text-left font-medium focus:outline-none"
-                  >
-                    <span>{faq.question}</span>
-                    {openIndex === i ? (
-                      <Minus className="h-5 w-5 text-primary flex-shrink-0" />
-                    ) : (
-                      <Plus className="h-5 w-5 text-primary flex-shrink-0" />
-                    )}
-                  </button>
-                  {openIndex === i && (
-                    <div className="p-4 pt-0 border-t dark:border-gray-700">
-                      <p className="text-muted-foreground">{faq.answer}</p>
-                    </div>
-                  )}
+                  <AccordionItem value={`item-${i}`} className="border rounded-lg overflow-hidden dark:border-gray-700">
+                    <AccordionTrigger className="px-4 py-3 hover:no-underline focus:no-underline">
+                      {faq.question}
+                    </AccordionTrigger>
+                    <AccordionContent className="px-4 text-muted-foreground">
+                      {faq.answer}
+                    </AccordionContent>
+                  </AccordionItem>
                 </motion.div>
               ))}
-            </div>
+            </Accordion>
             
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.5 }}
-              className="mt-12 p-6 border rounded-lg text-center dark:border-gray-700"
+              className="mt-16 p-8 border rounded-lg dark:border-gray-700 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-950 shadow-sm"
             >
-              <h2 className="text-xl font-bold mb-2">Still have questions?</h2>
-              <p className="text-muted-foreground mb-4">If you couldn't find the answer you were looking for, please contact our support team.</p>
-              <button className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 transition-colors">
-                Contact Support
-              </button>
+              <h2 className="text-2xl font-bold mb-4 text-center">Still have questions?</h2>
+              <p className="text-muted-foreground mb-8 text-center max-w-xl mx-auto">
+                We're here to help! Choose the best way to get in touch with our support team.
+              </p>
+              
+              <Tabs defaultValue="contact-form" className="w-full max-w-xl mx-auto">
+                <TabsList className="grid grid-cols-3 mb-6">
+                  <TabsTrigger value="contact-form">Contact Form</TabsTrigger>
+                  <TabsTrigger value="support-channels">Support Channels</TabsTrigger>
+                  <TabsTrigger value="help-center">Help Center</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="contact-form" className="p-6 border rounded-lg dark:border-gray-700">
+                  <form className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="name" className="block text-sm font-medium mb-1">Name</label>
+                        <input 
+                          type="text" 
+                          id="name" 
+                          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:border-gray-700" 
+                          placeholder="Your name" 
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>
+                        <input 
+                          type="email" 
+                          id="email" 
+                          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:border-gray-700" 
+                          placeholder="Your email" 
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label htmlFor="subject" className="block text-sm font-medium mb-1">Subject</label>
+                      <input 
+                        type="text" 
+                        id="subject" 
+                        className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:border-gray-700" 
+                        placeholder="How can we help?" 
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="message" className="block text-sm font-medium mb-1">Message</label>
+                      <textarea 
+                        id="message" 
+                        rows={4} 
+                        className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:border-gray-700" 
+                        placeholder="Please describe your issue or question in detail"
+                      ></textarea>
+                    </div>
+                    <div className="pt-2">
+                      <button 
+                        type="submit" 
+                        className="w-full bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90 transition-colors"
+                      >
+                        Send Message
+                      </button>
+                    </div>
+                  </form>
+                </TabsContent>
+                
+                <TabsContent value="support-channels" className="p-6 border rounded-lg space-y-6 dark:border-gray-700">
+                  <div className="flex items-start gap-4">
+                    <div className="h-10 w-10 flex items-center justify-center rounded-full bg-primary/10 text-primary flex-shrink-0">
+                      <MessageCircle size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-medium mb-1">Live Chat</h3>
+                      <p className="text-muted-foreground mb-2">Available Monday to Friday, 9am-5pm EST</p>
+                      <button className="text-primary font-medium hover:underline">Start Chat</button>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-4">
+                    <div className="h-10 w-10 flex items-center justify-center rounded-full bg-primary/10 text-primary flex-shrink-0">
+                      <Mail size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-medium mb-1">Email Support</h3>
+                      <p className="text-muted-foreground mb-2">We'll respond within 24-48 hours</p>
+                      <a href="mailto:support@truthguard.com" className="text-primary font-medium hover:underline">
+                        support@truthguard.com
+                      </a>
+                    </div>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="help-center" className="p-6 border rounded-lg space-y-6 dark:border-gray-700">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="h-16 w-16 flex items-center justify-center rounded-full bg-primary/10 text-primary mb-4">
+                      <MapPin size={24} />
+                    </div>
+                    <h3 className="text-lg font-medium mb-2">Knowledge Base</h3>
+                    <p className="text-muted-foreground mb-4 max-w-md">
+                      Explore our detailed guides, tutorials, and troubleshooting articles to find quick answers.
+                    </p>
+                    <button className="bg-gray-100 dark:bg-gray-800 px-4 py-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors font-medium">
+                      Visit Knowledge Base
+                    </button>
+                  </div>
+                </TabsContent>
+              </Tabs>
+              
+              <div className="mt-8 pt-6 border-t dark:border-gray-800 grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                <div className="p-4">
+                  <Clock className="h-6 w-6 mx-auto mb-2 text-primary" />
+                  <h3 className="font-medium mb-1">Support Hours</h3>
+                  <p className="text-sm text-muted-foreground">Mon-Fri, 9am-5pm EST</p>
+                </div>
+                <div className="p-4">
+                  <MessageCircle className="h-6 w-6 mx-auto mb-2 text-primary" />
+                  <h3 className="font-medium mb-1">Response Time</h3>
+                  <p className="text-sm text-muted-foreground">Within 24-48 hours</p>
+                </div>
+                <div className="p-4">
+                  <Mail className="h-6 w-6 mx-auto mb-2 text-primary" />
+                  <h3 className="font-medium mb-1">Technical Support</h3>
+                  <p className="text-sm text-muted-foreground">Priority for paid plans</p>
+                </div>
+              </div>
             </motion.div>
           </div>
         </section>
