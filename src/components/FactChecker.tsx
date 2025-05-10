@@ -49,9 +49,15 @@ export default function FactChecker() {
       if (error) {
         console.error('Error from Supabase function:', error);
         
-        // Check if it's a quota exceeded error
-        if (error.message && (error.message.includes('quota') || error.status === 402)) {
+        // Enhanced error handling for various edge function errors
+        if (error.message && (error.message.includes('quota') || error.status === 402 || error.status === 429)) {
           setErrorMessage("Google AI API quota exceeded. Please try again later or contact support to update your API key.");
+        } else if (error.status >= 500) {
+          setErrorMessage("Server error. The fact-checking service is currently unavailable. Please try again later.");
+        } else if (error.status === 404) {
+          setErrorMessage("Edge function not found. Please ensure the function is properly deployed.");
+        } else if (error.message && error.message.includes('Edge Function returned a non-2xx status code')) {
+          setErrorMessage("The fact-checking service encountered an error. The API may be experiencing high traffic or maintenance.");
         } else {
           setErrorMessage(`Error: ${error.message || "Failed to check facts"}`);
         }
@@ -114,13 +120,14 @@ export default function FactChecker() {
 
               {status === "error" && errorMessage && (
                 <Alert variant="destructive" className="mt-6">
-                  {errorMessage.includes('quota') || errorMessage.includes('API key') ? (
+                  {errorMessage.includes('quota') || errorMessage.includes('API key') || errorMessage.includes('traffic') ? (
                     <AlertTriangle className="h-4 w-4" />
                   ) : (
                     <XCircle className="h-4 w-4" />
                   )}
                   <AlertTitle>
-                    {errorMessage.includes('quota') || errorMessage.includes('API key') ? 'API Limit Reached' : 'Error checking facts'}
+                    {errorMessage.includes('quota') || errorMessage.includes('API key') ? 'API Limit Reached' : 
+                    errorMessage.includes('traffic') || errorMessage.includes('service') ? 'Service Unavailable' : 'Error checking facts'}
                   </AlertTitle>
                   <AlertDescription>{errorMessage}</AlertDescription>
                 </Alert>
