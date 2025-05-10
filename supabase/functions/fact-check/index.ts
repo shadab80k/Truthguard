@@ -104,7 +104,7 @@ serve(async (req) => {
         let errorMessage = errorData.error?.message || 'Unknown error';
         
         // Check for quota exceeded error
-        if (errorMessage.includes('quota') || errorMessage.includes('billing') || errorMessage.includes('limit')) {
+        if (errorMessage.includes('quota') || errorMessage.includes('billing') || errorMessage.includes('limit') || factCheckResponse.status === 429) {
           console.error('Google AI API quota exceeded or billing issue');
           return new Response(
             JSON.stringify({ error: `Google AI API quota exceeded: ${errorMessage}` }),

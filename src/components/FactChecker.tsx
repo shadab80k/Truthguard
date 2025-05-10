@@ -50,8 +50,8 @@ export default function FactChecker() {
         console.error('Error from Supabase function:', error);
         
         // Check if it's a quota exceeded error
-        if (error.message && error.message.includes('quota')) {
-          setErrorMessage("Google AI API quota exceeded. Please try again later or upgrade your plan.");
+        if (error.message && (error.message.includes('quota') || error.status === 402)) {
+          setErrorMessage("Google AI API quota exceeded. Please try again later or contact support to update your API key.");
         } else {
           setErrorMessage(`Error: ${error.message || "Failed to check facts"}`);
         }
@@ -114,13 +114,13 @@ export default function FactChecker() {
 
               {status === "error" && errorMessage && (
                 <Alert variant="destructive" className="mt-6">
-                  {errorMessage.includes('quota') ? (
+                  {errorMessage.includes('quota') || errorMessage.includes('API key') ? (
                     <AlertTriangle className="h-4 w-4" />
                   ) : (
                     <XCircle className="h-4 w-4" />
                   )}
                   <AlertTitle>
-                    {errorMessage.includes('quota') ? 'API Limit Reached' : 'Error checking facts'}
+                    {errorMessage.includes('quota') || errorMessage.includes('API key') ? 'API Limit Reached' : 'Error checking facts'}
                   </AlertTitle>
                   <AlertDescription>{errorMessage}</AlertDescription>
                 </Alert>
