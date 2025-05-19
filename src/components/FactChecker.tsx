@@ -51,7 +51,7 @@ export default function FactChecker() {
         
         // Enhanced error handling for various edge function errors
         if (error.message && (error.message.includes('quota') || error.status === 402 || error.status === 429)) {
-          setErrorMessage("Google AI API quota exceeded. Please try again later or contact support to update your API key.");
+          setErrorMessage("Grok AI API quota exceeded. Please try again later or contact support to update your API key.");
         } else if (error.status >= 500) {
           setErrorMessage("Server error. The fact-checking service is currently unavailable. Please try again later.");
         } else if (error.status === 404) {
@@ -104,7 +104,7 @@ export default function FactChecker() {
           <CardHeader className="pb-2">
             <CardTitle className="text-xl font-medium">TruthGuard Analyzer</CardTitle>
             <CardDescription>
-              Get instant fact-checking results with Google AI-powered analysis
+              Get instant fact-checking results with Grok AI-powered analysis
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-4">

@@ -35,12 +35,12 @@ serve(async (req) => {
       );
     }
 
-    // Initialize the Google AI API client
-    const googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY');
-    if (!googleApiKey) {
-      console.error('Google AI API key is not configured');
+    // Initialize the Grok AI API client
+    const grokApiKey = Deno.env.get('GOOGLE_AI_API_KEY'); // We're reusing the same env variable
+    if (!grokApiKey) {
+      console.error('Grok AI API key is not configured');
       return new Response(
-        JSON.stringify({ error: 'Google AI API key is not configured' }),
+        JSON.stringify({ error: 'Grok AI API key is not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -48,47 +48,43 @@ serve(async (req) => {
     console.log(`Processing fact check for statement: ${statement}`);
 
     try {
-      // Call Google's Gemini API for fact checking with a timeout
+      // Call Grok's AI API for fact checking with a timeout
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout
       
-      const factCheckResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent', {
+      const factCheckResponse = await fetch('https://api.grok.ai/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-goog-api-key': googleApiKey,
+          'Authorization': `Bearer ${grokApiKey}`,
         },
         body: JSON.stringify({
-          contents: [
+          model: "grok-1",
+          messages: [
+            {
+              role: 'system',
+              content: `You are a fact-checking assistant. Analyze the statement for factual accuracy and provide a detailed assessment.
+              Return a JSON response with the following structure:
+              {
+                "status": "true" | "questionable" | "fake",
+                "confidence": <number between 0 and 1>,
+                "reasoning": "<detailed explanation>",
+                "sources": [
+                  {
+                    "name": "<source name>",
+                    "url": "<source url>",
+                    "credibility": "high" | "medium" | "low",
+                    "summary": "<how this source addresses the fact>"
+                  }
+                ]
+              }`
+            },
             {
               role: 'user',
-              parts: [
-                {
-                  text: `You are a fact-checking assistant. Analyze the statement for factual accuracy and provide a detailed assessment.
-                  Return a JSON response with the following structure:
-                  {
-                    "status": "true" | "questionable" | "fake",
-                    "confidence": <number between 0 and 1>,
-                    "reasoning": "<detailed explanation>",
-                    "sources": [
-                      {
-                        "name": "<source name>",
-                        "url": "<source url>",
-                        "credibility": "high" | "medium" | "low",
-                        "summary": "<how this source addresses the fact>"
-                      }
-                    ]
-                  }
-                  
-                  Fact check this statement: "${statement}"`
-                }
-              ]
+              content: `Fact check this statement: "${statement}"`
             }
           ],
-          generationConfig: {
-            temperature: 0.1,
-            candidateCount: 1,
-          }
+          temperature: 0.1
         }),
         signal: controller.signal
       });
@@ -97,23 +93,23 @@ serve(async (req) => {
 
       if (!factCheckResponse.ok) {
         const errorText = await factCheckResponse.text();
-        console.error('Google AI API error status:', factCheckResponse.status);
-        console.error('Google AI API error response:', errorText);
+        console.error('Grok AI API error status:', factCheckResponse.status);
+        console.error('Grok AI API error response:', errorText);
         
         let errorData;
         try {
           errorData = JSON.parse(errorText);
         } catch (e) {
-          errorData = { error: { message: 'Unknown error from Google AI API' } };
+          errorData = { error: { message: 'Unknown error from Grok AI API' } };
         }
         
         let errorMessage = errorData.error?.message || 'Unknown error';
         
         // Check for quota exceeded error
         if (errorMessage.includes('quota') || errorMessage.includes('billing') || errorMessage.includes('limit') || factCheckResponse.status === 429) {
-          console.error('Google AI API quota exceeded or billing issue');
+          console.error('Grok AI API quota exceeded or billing issue');
           return new Response(
-            JSON.stringify({ error: `Google AI API quota exceeded: ${errorMessage}` }),
+            JSON.stringify({ error: `Grok AI API quota exceeded: ${errorMessage}` }),
             { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
@@ -121,28 +117,28 @@ serve(async (req) => {
         // Check for rate limiting or other temporary issues
         if (factCheckResponse.status === 503 || factCheckResponse.status === 429) {
           return new Response(
-            JSON.stringify({ error: `Google AI service temporarily unavailable: ${errorMessage}` }),
+            JSON.stringify({ error: `Grok AI service temporarily unavailable: ${errorMessage}` }),
             { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
         
         return new Response(
-          JSON.stringify({ error: `Google AI API error: ${errorMessage}` }),
+          JSON.stringify({ error: `Grok AI API error: ${errorMessage}` }),
           { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
       const responseData = await factCheckResponse.json();
       
-      if (!responseData.candidates || !responseData.candidates[0] || !responseData.candidates[0].content) {
-        console.error('Unexpected Google AI response format:', responseData);
+      if (!responseData.choices || !responseData.choices[0] || !responseData.choices[0].message) {
+        console.error('Unexpected Grok AI response format:', responseData);
         return new Response(
-          JSON.stringify({ error: 'Unexpected response format from Google AI' }),
+          JSON.stringify({ error: 'Unexpected response format from Grok AI' }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
       
-      const textContent = responseData.candidates[0].content.parts[0].text;
+      const textContent = responseData.choices[0].message.content;
       
       // Extract JSON from the response text
       let resultJson;
@@ -158,7 +154,7 @@ serve(async (req) => {
           throw new Error('No JSON found in response');
         }
       } catch (e) {
-        console.error('Error parsing JSON from Google AI:', e);
+        console.error('Error parsing JSON from Grok AI:', e);
         console.error('Raw content:', textContent);
         return new Response(
           JSON.stringify({ error: 'Error parsing AI response' }),
@@ -247,14 +243,14 @@ serve(async (req) => {
     } catch (aiError) {
       // Check if this is an AbortController timeout
       if (aiError.name === 'AbortError') {
-        console.error('Request timed out when calling Google AI');
+        console.error('Request timed out when calling Grok AI');
         return new Response(
           JSON.stringify({ error: 'Request timed out when calling the AI service. Please try again later.' }),
           { status: 504, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
       
-      console.error('Error calling Google AI:', aiError);
+      console.error('Error calling Grok AI:', aiError);
       return new Response(
         JSON.stringify({ error: 'Error communicating with AI service: ' + aiError.message }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
