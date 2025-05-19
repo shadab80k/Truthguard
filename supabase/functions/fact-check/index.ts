@@ -26,7 +26,7 @@ serve(async (req) => {
       );
     }
 
-    const { statement, userId } = body;
+    const { statement, userId, retry = false } = body;
     
     if (!statement) {
       return new Response(
@@ -35,7 +35,7 @@ serve(async (req) => {
       );
     }
 
-    // Initialize the OpenAI API client as fallback since Grok is having issues
+    // Initialize API keys
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
     const grokApiKey = Deno.env.get('GOOGLE_AI_API_KEY');
     
@@ -48,6 +48,7 @@ serve(async (req) => {
     }
 
     console.log(`Processing fact check for statement: ${statement}`);
+    console.log(`Retry attempt: ${retry ? 'Yes' : 'No'}`);
 
     try {
       // Call AI API for fact checking with a timeout
@@ -57,8 +58,11 @@ serve(async (req) => {
       let factCheckResponse;
       let apiUsed;
       
-      // Try OpenAI first if available, otherwise fall back to Grok
-      if (openaiApiKey) {
+      // For retry logic, we'll switch the order of preference
+      const tryOpenAIFirst = retry ? true : (grokApiKey ? false : true);
+      
+      // First attempt - use preferred API based on retry flag
+      if ((tryOpenAIFirst && openaiApiKey) || (!tryOpenAIFirst && !grokApiKey && openaiApiKey)) {
         try {
           console.log("Attempting to use OpenAI for fact checking");
           factCheckResponse = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -93,7 +97,7 @@ serve(async (req) => {
                   content: `Fact check this statement: "${statement}"`
                 }
               ],
-              temperature: 0.1
+              temperature: retry ? 0.2 : 0.1 // Slightly higher temperature on retry for variation
             }),
             signal: controller.signal
           });
@@ -106,7 +110,7 @@ serve(async (req) => {
         }
       }
       
-      // If OpenAI failed or wasn't available, try Grok
+      // If first attempt failed or wasn't chosen, try the alternative
       if (!factCheckResponse && grokApiKey) {
         try {
           console.log("Attempting to use Grok for fact checking");
@@ -142,7 +146,7 @@ serve(async (req) => {
                   content: `Fact check this statement: "${statement}"`
                 }
               ],
-              temperature: 0.1
+              temperature: retry ? 0.3 : 0.1 // Slightly higher temperature on retry for variation
             }),
             signal: controller.signal
           });
@@ -151,6 +155,56 @@ serve(async (req) => {
           console.log("Successfully connected to Grok");
         } catch (grokError) {
           console.error("Error using Grok:", grokError);
+        }
+      }
+      
+      // Final fallback to whichever API wasn't tried yet
+      if (!factCheckResponse) {
+        if (!apiUsed && openaiApiKey && !tryOpenAIFirst) {
+          try {
+            console.log("Fallback attempt using OpenAI");
+            factCheckResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${openaiApiKey}`,
+              },
+              body: JSON.stringify({
+                model: "gpt-4o-mini",
+                messages: [
+                  {
+                    role: 'system',
+                    content: `You are a fact-checking assistant. Analyze the statement for factual accuracy and provide a detailed assessment.
+                    Return a JSON response with the following structure:
+                    {
+                      "status": "true" | "questionable" | "fake",
+                      "confidence": <number between 0 and 1>,
+                      "reasoning": "<detailed explanation>",
+                      "sources": [
+                        {
+                          "name": "<source name>",
+                          "url": "<source url>",
+                          "credibility": "high" | "medium" | "low",
+                          "summary": "<how this source addresses the fact>"
+                        }
+                      ]
+                    }`
+                  },
+                  {
+                    role: 'user',
+                    content: `Fact check this statement: "${statement}"`
+                  }
+                ],
+                temperature: 0.3 // Higher temperature as a last resort
+              }),
+              signal: controller.signal
+            });
+            
+            apiUsed = "OpenAI (fallback)";
+            console.log("Successfully connected to OpenAI in fallback mode");
+          } catch (fallbackError) {
+            console.error("Error in OpenAI fallback:", fallbackError);
+          }
         }
       }
       
@@ -265,7 +319,8 @@ serve(async (req) => {
               confidence: resultJson.confidence,
               reasoning: resultJson.reasoning,
               user_id: userId,
-              is_public: true
+              is_public: true,
+              api_used: apiUsed
             })
             .select('id')
             .single();
