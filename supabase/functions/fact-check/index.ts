@@ -52,7 +52,8 @@ serve(async (req) => {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout
       
-      const factCheckResponse = await fetch('https://api.grok.ai/v1/chat/completions', {
+      // Updated API endpoint for Grok AI
+      const factCheckResponse = await fetch('https://api.grok.x.ai/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
