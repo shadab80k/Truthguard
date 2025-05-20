@@ -42,22 +42,40 @@ export default function FactChecker() {
       const { data: { user } } = await supabase.auth.getUser();
       const userId = user?.id;
 
-      // Call the fact-check function with timeout
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      // Set up a timeout for the request
+      let timeoutId: number | undefined;
+      let requestCompleted = false;
+      
+      // Create a promise that will reject after the timeout period
+      const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = setTimeout(() => {
+          if (!requestCompleted) {
+            reject(new Error("Request timed out"));
+          }
+        }, 30000); // 30 second timeout
+      });
 
       try {
-        // Call the fact-check function
-        const { data, error } = await supabase.functions.invoke('fact-check', {
+        // Create a promise for the API call
+        const apiCallPromise = supabase.functions.invoke('fact-check', {
           body: { 
             statement: query, 
             userId,
             retry: retryCount > 0 // Signal to the edge function that this is a retry
-          },
-          signal: controller.signal
+          }
         });
 
-        clearTimeout(timeoutId);
+        // Race between the timeout and the API call
+        const { data, error } = await Promise.race([
+          apiCallPromise,
+          timeoutPromise.then(() => {
+            throw new Error("Request timed out");
+          })
+        ]) as { data?: ResultData, error?: any };
+
+        // Mark the request as completed to prevent timeout from firing
+        requestCompleted = true;
+        if (timeoutId) clearTimeout(timeoutId);
 
         if (error) {
           console.error('Error from Supabase function:', error);
@@ -69,7 +87,7 @@ export default function FactChecker() {
             setErrorMessage("Server error. The fact-checking service is currently unavailable. Please try again later.");
           } else if (error.status === 404) {
             setErrorMessage("Edge function not found. Please ensure the function is properly deployed.");
-          } else if (error.message && error.message.includes('AbortError')) {
+          } else if (error.message && error.message.includes('timeout')) {
             setErrorMessage("Request timed out. The AI service may be experiencing high load. Please try again later.");
           } else if (error.message && error.message.includes('Edge Function returned a non-2xx status code')) {
             setErrorMessage("The fact-checking service encountered an error. The API may be experiencing high traffic or maintenance.");
@@ -94,10 +112,10 @@ export default function FactChecker() {
           // Reset retry count on success
           setRetryCount(0);
         }, 1000);
-      } catch (fetchError) {
-        clearTimeout(timeoutId);
+      } catch (fetchError: any) {
+        if (timeoutId) clearTimeout(timeoutId);
         
-        if (fetchError.name === 'AbortError') {
+        if (fetchError.message && fetchError.message.includes('timeout')) {
           setErrorMessage("Request timed out. The AI service may be experiencing high load. Please try again later.");
         } else {
           setErrorMessage(`Network error: ${fetchError.message}`);
@@ -105,7 +123,7 @@ export default function FactChecker() {
         setStatus("error");
       }
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Exception during fact checking:', error);
       setErrorMessage(error.message || "There was an unexpected error processing your request");
       setStatus("error");
