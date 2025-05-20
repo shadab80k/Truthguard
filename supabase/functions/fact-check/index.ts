@@ -26,7 +26,7 @@ serve(async (req) => {
       );
     }
 
-    const { statement, userId, retry = false } = body;
+    const { statement, userId } = body;
     
     if (!statement) {
       return new Response(
@@ -35,48 +35,33 @@ serve(async (req) => {
       );
     }
 
-    // Initialize API keys
-    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
-    const grokApiKey = Deno.env.get('GOOGLE_AI_API_KEY');
-    
-    if (!openaiApiKey && !grokApiKey) {
-      console.error('No AI API keys configured');
+    // Initialize the Google AI API client
+    const googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY');
+    if (!googleApiKey) {
+      console.error('Google AI API key is not configured');
       return new Response(
-        JSON.stringify({ error: 'AI API keys are not configured' }),
+        JSON.stringify({ error: 'Google AI API key is not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     console.log(`Processing fact check for statement: ${statement}`);
-    console.log(`Retry attempt: ${retry ? 'Yes' : 'No'}`);
 
     try {
-      // Call AI API for fact checking with a timeout
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-      
-      let factCheckResponse;
-      let apiUsed;
-      
-      // For retry logic, we'll switch the order of preference
-      const tryOpenAIFirst = retry ? true : (grokApiKey ? false : true);
-      
-      // First attempt - use preferred API based on retry flag
-      if ((tryOpenAIFirst && openaiApiKey) || (!tryOpenAIFirst && !grokApiKey && openaiApiKey)) {
-        try {
-          console.log("Attempting to use OpenAI for fact checking");
-          factCheckResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${openaiApiKey}`,
-            },
-            body: JSON.stringify({
-              model: "gpt-4o-mini",
-              messages: [
+      // Call Google's Gemini API for fact checking
+      const factCheckResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': googleApiKey,
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: 'user',
+              parts: [
                 {
-                  role: 'system',
-                  content: `You are a fact-checking assistant. Analyze the statement for factual accuracy and provide a detailed assessment.
+                  text: `You are a fact-checking assistant. Analyze the statement for factual accuracy and provide a detailed assessment.
                   Return a JSON response with the following structure:
                   {
                     "status": "true" | "questionable" | "fake",
@@ -90,183 +75,60 @@ serve(async (req) => {
                         "summary": "<how this source addresses the fact>"
                       }
                     ]
-                  }`
-                },
-                {
-                  role: 'user',
-                  content: `Fact check this statement: "${statement}"`
-                }
-              ],
-              temperature: retry ? 0.2 : 0.1 // Slightly higher temperature on retry for variation
-            }),
-            signal: controller.signal
-          });
-          
-          apiUsed = "OpenAI";
-          console.log("Successfully connected to OpenAI");
-        } catch (openaiError) {
-          console.error("Error using OpenAI:", openaiError);
-          // Will fall back to Grok if available
-        }
-      }
-      
-      // If first attempt failed or wasn't chosen, try the alternative
-      if (!factCheckResponse && grokApiKey) {
-        try {
-          console.log("Attempting to use Grok for fact checking");
-          factCheckResponse = await fetch('https://api.grok.x.ai/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${grokApiKey}`,
-            },
-            body: JSON.stringify({
-              model: "grok-1",
-              messages: [
-                {
-                  role: 'system',
-                  content: `You are a fact-checking assistant. Analyze the statement for factual accuracy and provide a detailed assessment.
-                  Return a JSON response with the following structure:
-                  {
-                    "status": "true" | "questionable" | "fake",
-                    "confidence": <number between 0 and 1>,
-                    "reasoning": "<detailed explanation>",
-                    "sources": [
-                      {
-                        "name": "<source name>",
-                        "url": "<source url>",
-                        "credibility": "high" | "medium" | "low",
-                        "summary": "<how this source addresses the fact>"
-                      }
-                    ]
-                  }`
-                },
-                {
-                  role: 'user',
-                  content: `Fact check this statement: "${statement}"`
-                }
-              ],
-              temperature: retry ? 0.3 : 0.1 // Slightly higher temperature on retry for variation
-            }),
-            signal: controller.signal
-          });
-          
-          apiUsed = "Grok";
-          console.log("Successfully connected to Grok");
-        } catch (grokError) {
-          console.error("Error using Grok:", grokError);
-        }
-      }
-      
-      // Final fallback to whichever API wasn't tried yet
-      if (!factCheckResponse) {
-        if (!apiUsed && openaiApiKey && !tryOpenAIFirst) {
-          try {
-            console.log("Fallback attempt using OpenAI");
-            factCheckResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${openaiApiKey}`,
-              },
-              body: JSON.stringify({
-                model: "gpt-4o-mini",
-                messages: [
-                  {
-                    role: 'system',
-                    content: `You are a fact-checking assistant. Analyze the statement for factual accuracy and provide a detailed assessment.
-                    Return a JSON response with the following structure:
-                    {
-                      "status": "true" | "questionable" | "fake",
-                      "confidence": <number between 0 and 1>,
-                      "reasoning": "<detailed explanation>",
-                      "sources": [
-                        {
-                          "name": "<source name>",
-                          "url": "<source url>",
-                          "credibility": "high" | "medium" | "low",
-                          "summary": "<how this source addresses the fact>"
-                        }
-                      ]
-                    }`
-                  },
-                  {
-                    role: 'user',
-                    content: `Fact check this statement: "${statement}"`
                   }
-                ],
-                temperature: 0.3 // Higher temperature as a last resort
-              }),
-              signal: controller.signal
-            });
-            
-            apiUsed = "OpenAI (fallback)";
-            console.log("Successfully connected to OpenAI in fallback mode");
-          } catch (fallbackError) {
-            console.error("Error in OpenAI fallback:", fallbackError);
+                  
+                  Fact check this statement: "${statement}"`
+                }
+              ]
+            }
+          ],
+          generationConfig: {
+            temperature: 0.1,
+            candidateCount: 1,
           }
-        }
-      }
-      
-      clearTimeout(timeout);
-
-      // If both APIs failed
-      if (!factCheckResponse) {
-        console.error('All AI services failed');
-        return new Response(
-          JSON.stringify({ error: 'All AI services failed. Please try again later.' }),
-          { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
+        }),
+      });
 
       if (!factCheckResponse.ok) {
         const errorText = await factCheckResponse.text();
-        console.error(`${apiUsed} AI API error status:`, factCheckResponse.status);
-        console.error(`${apiUsed} AI API error response:`, errorText);
+        console.error('Google AI API error status:', factCheckResponse.status);
+        console.error('Google AI API error response:', errorText);
         
         let errorData;
         try {
           errorData = JSON.parse(errorText);
         } catch (e) {
-          errorData = { error: { message: `Unknown error from ${apiUsed} AI API` } };
+          errorData = { error: { message: 'Unknown error from Google AI API' } };
         }
         
         let errorMessage = errorData.error?.message || 'Unknown error';
         
         // Check for quota exceeded error
         if (errorMessage.includes('quota') || errorMessage.includes('billing') || errorMessage.includes('limit') || factCheckResponse.status === 429) {
-          console.error(`${apiUsed} AI API quota exceeded or billing issue`);
+          console.error('Google AI API quota exceeded or billing issue');
           return new Response(
-            JSON.stringify({ error: `${apiUsed} AI API quota exceeded: ${errorMessage}` }),
+            JSON.stringify({ error: `Google AI API quota exceeded: ${errorMessage}` }),
             { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
         
-        // Check for rate limiting or other temporary issues
-        if (factCheckResponse.status === 503 || factCheckResponse.status === 429) {
-          return new Response(
-            JSON.stringify({ error: `${apiUsed} AI service temporarily unavailable: ${errorMessage}` }),
-            { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        }
-        
         return new Response(
-          JSON.stringify({ error: `${apiUsed} AI API error: ${errorMessage}` }),
+          JSON.stringify({ error: `Google AI API error: ${errorMessage}` }),
           { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
       const responseData = await factCheckResponse.json();
       
-      if (!responseData.choices || !responseData.choices[0] || !responseData.choices[0].message) {
-        console.error(`Unexpected ${apiUsed} response format:`, responseData);
+      if (!responseData.candidates || !responseData.candidates[0] || !responseData.candidates[0].content) {
+        console.error('Unexpected Google AI response format:', responseData);
         return new Response(
-          JSON.stringify({ error: `Unexpected response format from ${apiUsed} AI` }),
+          JSON.stringify({ error: 'Unexpected response format from Google AI' }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
       
-      const textContent = responseData.choices[0].message.content;
+      const textContent = responseData.candidates[0].content.parts[0].text;
       
       // Extract JSON from the response text
       let resultJson;
@@ -282,7 +144,7 @@ serve(async (req) => {
           throw new Error('No JSON found in response');
         }
       } catch (e) {
-        console.error(`Error parsing JSON from ${apiUsed} AI:`, e);
+        console.error('Error parsing JSON from Google AI:', e);
         console.error('Raw content:', textContent);
         return new Response(
           JSON.stringify({ error: 'Error parsing AI response' }),
@@ -319,8 +181,7 @@ serve(async (req) => {
               confidence: resultJson.confidence,
               reasoning: resultJson.reasoning,
               user_id: userId,
-              is_public: true,
-              api_used: apiUsed
+              is_public: true
             })
             .select('id')
             .single();
@@ -363,24 +224,14 @@ serve(async (req) => {
           status: resultJson.status,
           confidence: resultJson.confidence,
           reasoning: resultJson.reasoning,
-          sources: resultJson.sources,
-          api_used: apiUsed
+          sources: resultJson.sources
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         }
       );
     } catch (aiError) {
-      // Check if this is an AbortController timeout
-      if (aiError.name === 'AbortError') {
-        console.error('Request timed out when calling AI API');
-        return new Response(
-          JSON.stringify({ error: 'Request timed out when calling the AI service. Please try again later.' }),
-          { status: 504, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      
-      console.error('Error calling AI API:', aiError);
+      console.error('Error calling Google AI:', aiError);
       return new Response(
         JSON.stringify({ error: 'Error communicating with AI service: ' + aiError.message }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
