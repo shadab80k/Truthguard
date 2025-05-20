@@ -48,7 +48,10 @@ serve(async (req) => {
     console.log(`Processing fact check for statement: ${statement}`);
 
     try {
-      // Call Google's Gemini API for fact checking
+      // Call Google's Gemini API for fact checking with a timeout
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
       const factCheckResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent', {
         method: 'POST',
         headers: {
@@ -87,7 +90,10 @@ serve(async (req) => {
             candidateCount: 1,
           }
         }),
+        signal: controller.signal
       });
+      
+      clearTimeout(timeout);
 
       if (!factCheckResponse.ok) {
         const errorText = await factCheckResponse.text();
@@ -109,6 +115,14 @@ serve(async (req) => {
           return new Response(
             JSON.stringify({ error: `Google AI API quota exceeded: ${errorMessage}` }),
             { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        
+        // Check for rate limiting or other temporary issues
+        if (factCheckResponse.status === 503 || factCheckResponse.status === 429) {
+          return new Response(
+            JSON.stringify({ error: `Google AI service temporarily unavailable: ${errorMessage}` }),
+            { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
         
@@ -231,6 +245,15 @@ serve(async (req) => {
         }
       );
     } catch (aiError) {
+      // Check if this is an AbortController timeout
+      if (aiError.name === 'AbortError') {
+        console.error('Request timed out when calling Google AI');
+        return new Response(
+          JSON.stringify({ error: 'Request timed out when calling the AI service. Please try again later.' }),
+          { status: 504, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
       console.error('Error calling Google AI:', aiError);
       return new Response(
         JSON.stringify({ error: 'Error communicating with AI service: ' + aiError.message }),
