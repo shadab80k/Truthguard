@@ -43,7 +43,7 @@ export default function FactChecker() {
       const userId = user?.id;
 
       // Set up a timeout for the request
-      let timeoutId: number | undefined;
+      let timeoutId: ReturnType<typeof setTimeout>;
       let requestCompleted = false;
       
       // Create a promise that will reject after the timeout period
