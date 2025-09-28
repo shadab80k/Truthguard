@@ -51,7 +51,7 @@ export default function AdvancedFactChecker() {
       const userId = user?.id;
 
       // Choose function based on mode
-      const functionName = useAdvanced ? 'fact-check-web' : 'fact-check';
+      const functionName = useAdvanced ? 'fact-check-web-improved' : 'fact-check';
       
       console.log(`Using ${functionName} for fact-checking...`);
 
