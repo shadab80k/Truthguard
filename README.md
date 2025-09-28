@@ -21,7 +21,6 @@
 > **Try TruthGuard now**: [your-demo-link.com](https://your-demo-link.com)
 
 **Test with these examples:**
-- "PM Modi is the Prime Minister of India"
 - "COVID-19 vaccines cause autism"
 - "The Earth is flat"
 - "Water boils at 100 degrees Celsius"
