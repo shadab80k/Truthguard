@@ -1,6 +1,5 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -8,6 +7,8 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  console.log('Edge Function called:', req.method, req.url);
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -17,7 +18,9 @@ serve(async (req) => {
     // Parse the request body
     let body;
     try {
-      body = await req.json();
+      const text = await req.text();
+      console.log('Raw request body:', text);
+      body = JSON.parse(text);
     } catch (e) {
       console.error("Error parsing request body:", e);
       return new Response(
@@ -27,6 +30,7 @@ serve(async (req) => {
     }
 
     const { statement, userId } = body;
+    console.log('Processing statement:', statement);
     
     if (!statement) {
       return new Response(
@@ -35,12 +39,12 @@ serve(async (req) => {
       );
     }
 
-    // Initialize the Google AI API client
-    const googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY');
-    if (!googleApiKey) {
-      console.error('Google AI API key is not configured');
+    // Initialize the Groq API client
+    const groqApiKey = Deno.env.get('GROQ_API_KEY');
+    if (!groqApiKey) {
+      console.error('Groq API key is not configured');
       return new Response(
-        JSON.stringify({ error: 'Google AI API key is not configured' }),
+        JSON.stringify({ error: 'Groq API key is not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -48,90 +52,57 @@ serve(async (req) => {
     console.log(`Processing fact check for statement: ${statement}`);
 
     try {
-      // Call Google's Gemini API for fact checking with improved timeout
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 45000); // 45 second timeout
+      // Call Groq API for fact checking
+      console.log('Calling Groq API...');
       
-      const factCheckResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent', {
+      const factCheckResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-goog-api-key': googleApiKey,
+          'Authorization': `Bearer ${groqApiKey}`,
         },
         body: JSON.stringify({
-          contents: [
+          model: 'llama-3.3-70b-versatile',
+          messages: [
             {
               role: 'user',
-              parts: [
-                {
-                  text: `You are a professional fact-checking assistant. Analyze the following statement for factual accuracy and provide a detailed assessment in JSON format.
-
-Statement to fact-check: "${statement}"
-
-You must respond with a valid JSON object with this exact structure:
-{
-  "status": "true" | "questionable" | "fake",
-  "confidence": <number between 0 and 1>,
-  "reasoning": "<detailed explanation of your analysis>",
-  "sources": [
-    {
-      "name": "<credible source name>",
-      "url": "<source URL if available>",
-      "credibility": "high" | "medium" | "low",
-      "summary": "<how this source supports or contradicts the statement>"
-    }
-  ]
-}
-
-Guidelines:
-- "true" = Statement is factually accurate
-- "questionable" = Partially true or needs more context  
-- "fake" = Statement is false or misleading
-- Confidence should reflect how certain you are (0.1 = very uncertain, 1.0 = completely certain)
-- Include at least 2-3 credible sources when possible
-- Provide clear reasoning based on available evidence`
-                }
-              ]
+              content: `Fact-check this statement and respond with JSON only: "${statement}". Use format: {"status":"true/questionable/fake","confidence":0.8,"reasoning":"explanation","sources":[{"name":"source","url":"url","credibility":"high","summary":"summary"}]}`
             }
           ],
-          generationConfig: {
-            temperature: 0.2,
-            candidateCount: 1,
-            maxOutputTokens: 2048,
-          }
-        }),
-        signal: controller.signal
+          temperature: 0.3,
+          max_tokens: 1000
+        })
       });
       
-      clearTimeout(timeout);
+      console.log('Groq API response status:', factCheckResponse.status);
 
       if (!factCheckResponse.ok) {
         const errorText = await factCheckResponse.text();
-        console.error('Google AI API error status:', factCheckResponse.status);
-        console.error('Google AI API error response:', errorText);
+        console.error('Groq API error status:', factCheckResponse.status);
+        console.error('Groq API error response:', errorText);
         
         let errorData;
         try {
           errorData = JSON.parse(errorText);
         } catch (e) {
-          errorData = { error: { message: 'Unknown error from Google AI API' } };
+          errorData = { error: { message: 'Unknown error from Groq API' } };
         }
         
         let errorMessage = errorData.error?.message || 'Unknown error';
         
         // Check for quota exceeded error
-        if (errorMessage.includes('quota') || errorMessage.includes('billing') || errorMessage.includes('limit') || factCheckResponse.status === 429) {
-          console.error('Google AI API quota exceeded or billing issue');
+        if (errorMessage.includes('quota') || errorMessage.includes('limit') || factCheckResponse.status === 429) {
+          console.error('Groq API quota exceeded');
           return new Response(
-            JSON.stringify({ error: `Google AI API quota exceeded. Please check your API key and billing settings.` }),
+            JSON.stringify({ error: `Groq API quota exceeded. Please check your API key and usage limits.` }),
             { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
         
         // Check for invalid API key
-        if (factCheckResponse.status === 400 && errorMessage.includes('API key')) {
+        if (factCheckResponse.status === 401) {
           return new Response(
-            JSON.stringify({ error: `Invalid Google AI API key. Please check your API key configuration.` }),
+            JSON.stringify({ error: `Invalid Groq API key. Please check your API key configuration.` }),
             { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
@@ -139,29 +110,29 @@ Guidelines:
         // Check for rate limiting or other temporary issues
         if (factCheckResponse.status === 503 || factCheckResponse.status === 429) {
           return new Response(
-            JSON.stringify({ error: `Google AI service temporarily unavailable. Please try again in a few minutes.` }),
+            JSON.stringify({ error: `Groq service temporarily unavailable. Please try again in a few minutes.` }),
             { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
         
         return new Response(
-          JSON.stringify({ error: `Google AI API error: ${errorMessage}` }),
+          JSON.stringify({ error: `Groq API error: ${errorMessage}` }),
           { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
       const responseData = await factCheckResponse.json();
-      console.log('Raw Google AI response:', JSON.stringify(responseData, null, 2));
+      console.log('Raw Groq API response:', JSON.stringify(responseData, null, 2));
       
-      if (!responseData.candidates || !responseData.candidates[0] || !responseData.candidates[0].content) {
-        console.error('Unexpected Google AI response format:', responseData);
+      if (!responseData.choices || !responseData.choices[0] || !responseData.choices[0].message) {
+        console.error('Unexpected Groq API response format:', responseData);
         return new Response(
-          JSON.stringify({ error: 'Unexpected response format from Google AI' }),
+          JSON.stringify({ error: 'Unexpected response format from Groq API' }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
       
-      const textContent = responseData.candidates[0].content.parts[0].text;
+      const textContent = responseData.choices[0].message.content;
       console.log('AI response text:', textContent);
       
       // Extract JSON from the response text
@@ -209,7 +180,7 @@ Guidelines:
         }
 
       } catch (e) {
-        console.error('Error parsing JSON from Google AI:', e);
+        console.error('Error parsing JSON from Groq API:', e);
         console.error('Raw content:', textContent);
         
         // Create a fallback response
@@ -223,67 +194,10 @@ Guidelines:
       
       console.log('Processed fact check result:', resultJson);
 
-      // Initialize Supabase client for database operations
-      const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'https://jeyxcpfhzydsfnsccgnw.supabase.co';
-      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || Deno.env.get('SUPABASE_ANON_KEY');
-      
-      if (!supabaseUrl || !supabaseKey) {
-        console.error('Supabase credentials not configured');
-        // Continue without saving to database
-      } else {
-        const supabase = createClient(supabaseUrl, supabaseKey);
-
-        // Insert the fact check result into the database if user is provided
-        let factCheckId;
-        if (userId) {
-          try {
-            const { data: factCheckData, error: factCheckError } = await supabase
-              .from('fact_checks')
-              .insert({
-                statement,
-                status: resultJson.status,
-                confidence: resultJson.confidence,
-                reasoning: resultJson.reasoning,
-                user_id: userId,
-                is_public: true
-              })
-              .select('id')
-              .single();
-
-            if (factCheckError) {
-              console.error('Error saving fact check:', factCheckError);
-            } else if (factCheckData) {
-              factCheckId = factCheckData.id;
-
-              // Insert sources if available
-              if (resultJson.sources && Array.isArray(resultJson.sources) && resultJson.sources.length > 0) {
-                const sourcesInserts = resultJson.sources.map(source => ({
-                  fact_check_id: factCheckId,
-                  name: source.name || 'Unknown Source',
-                  url: source.url || '#',
-                  credibility: source.credibility || 'medium',
-                  summary: source.summary || 'No summary available'
-                }));
-
-                const { error: sourcesError } = await supabase
-                  .from('sources')
-                  .insert(sourcesInserts);
-
-                if (sourcesError) {
-                  console.error('Error saving sources:', sourcesError);
-                }
-              }
-            }
-          } catch (dbError) {
-            console.error('Database operation error:', dbError);
-          }
-        }
-      }
-
-      // Return the successful response
+      // Return the successful response (without database operations for now)
       return new Response(
         JSON.stringify({
-          id: factCheckId || null,
+          id: `fact_${Date.now()}`,
           status: resultJson.status,
           confidence: resultJson.confidence,
           reasoning: resultJson.reasoning,
@@ -297,14 +211,14 @@ Guidelines:
     } catch (aiError) {
       // Check if this is an AbortController timeout
       if (aiError.name === 'AbortError') {
-        console.error('Request timed out when calling Google AI');
+        console.error('Request timed out when calling Groq API');
         return new Response(
           JSON.stringify({ error: 'Request timed out. The AI service is taking too long to respond. Please try again.' }),
           { status: 504, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
       
-      console.error('Error calling Google AI:', aiError);
+      console.error('Error calling Groq API:', aiError);
       return new Response(
         JSON.stringify({ error: 'Error communicating with AI service: ' + aiError.message }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
