@@ -6,7 +6,7 @@ import NavBar from '@/components/NavBar';
 import Hero from '@/components/Hero';
 import Features from '@/components/Features';
 import HowItWorks from '@/components/HowItWorks';
-import FactChecker from '@/components/FactChecker';
+import AdvancedFactChecker from '@/components/AdvancedFactChecker';
 import Footer from '@/components/Footer';
 
 const Index = () => {
@@ -85,7 +85,7 @@ const Index = () => {
           <Hero />
           <Features />
           <HowItWorks />
-          <FactChecker />
+          <AdvancedFactChecker />
         </main>
         <Footer />
       </div>
