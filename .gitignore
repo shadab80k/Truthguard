@@ -12,12 +12,27 @@ dist
 dist-ssr
 *.local
 
-# Environment variables
+# Environment variables (IMPORTANT: Never commit these!)
 .env
 .env.local
 .env.production
 .env.development
 supabase/.env.local
+*.env
+
+# API Keys and Secrets (NEVER COMMIT THESE)
+**/api-keys.json
+**/secrets.json
+**/*secret*
+**/*key*
+
+# Supabase sensitive files
+supabase/.temp/
+supabase/config.toml
+
+# Database dumps and backups
+*.sql.backup
+*.dump
 
 # Editor directories and files
 .vscode/*
