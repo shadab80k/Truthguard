@@ -6,7 +6,7 @@
 
 *Verify statements and news with professional-grade accuracy in seconds*
 
-[![Demo](https://img.shields.io/badge/🚀_Live_Demo-Available-brightgreen)](https://your-demo-link.com)
+[![Demo](https://img.shields.io/badge/🚀_Live_Demo-Available-brightgreen)](https://truthguard-ai.vercel.app/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-100%25-blue)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18+-61DAFB)](https://reactjs.org/)
