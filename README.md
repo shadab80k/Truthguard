@@ -18,7 +18,7 @@
 
 ## 🚀 **Live Demo**
 
-> **Try TruthGuard now**: [your-demo-link.com](https://truthguard-ai.vercel.app/)
+> **Try TruthGuard now**: [Try Now](https://truthguard-ai.vercel.app/)
 
 **Test with these examples:**
 - "COVID-19 vaccines cause autism"
