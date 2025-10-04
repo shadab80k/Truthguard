@@ -12,7 +12,7 @@
 [![React](https://img.shields.io/badge/React-18+-61DAFB)](https://reactjs.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-Powered-green)](https://supabase.com/)
 
-![TruthGuard Screenshot](https://via.placeholder.com/800x400/1e293b/ffffff?text=TruthGuard+Screenshot+Here)
+<img width="681" height="771" alt="Screenshot 2025-10-04 182856" src="https://github.com/user-attachments/assets/95d5ded5-3032-410c-b7bf-9f7ae8e47ee5" />
 
 </div>
 
