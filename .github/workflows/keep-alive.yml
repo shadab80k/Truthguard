@@ -1,0 +1,19 @@
+name: Keep Supabase Active
+
+on:
+  schedule:
+    # Runs every day at 00:00 UTC (keeps Supabase from pausing due to 7-day inactivity)
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase Database Endpoint
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrcHVtcGl0cWFubW1qcGdwZWl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkwODkwMTksImV4cCI6MjA3NDY2NTAxOX0.3oxlEZRpfWKpOICsvyg7hPruHYr2cS7ljop3mPizpO8" \
+            -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrcHVtcGl0cWFubW1qcGdwZWl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkwODkwMTksImV4cCI6MjA3NDY2NTAxOX0.3oxlEZRpfWKpOICsvyg7hPruHYr2cS7ljop3mPizpO8" \
+            "https://ekpumpitqanmmjpgpeiv.supabase.co/rest/v1/fact_checks?select=id&limit=1")
+          echo "Supabase ping status code: $response"
